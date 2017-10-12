@@ -18,8 +18,12 @@ time course of green signal decrease. These represent how the green channel sign
 Plot each mitophagy event time course (ch2_mean_intensity, data: data/mitophagy_summary_intensity_mean_ch2.csv). 
 Calculate and plot the spline (spar=0.4) for each mitophagy event time course (ch2_mean_intensity, generated data: data/mitophagy_summary_intensity_mean_ch2_spline.csv)
 
-- 6_synchronise_time_courses_by_maxval/:
-attempt to synchronise the time courses by the maximum intensity peak.
+- 6_synchronise_time_courses/:
+Synchronise and plot time course data. 
+
+- 7_time_courses_w_adjust_green_ch/:
+Adjust the time courses so that there is no signal decline over time. This was not background signal. 
+
 
 - movies_orthogonal_atg13_circle.csv:
 File containing the list of selected movies showing an accurate circle.
