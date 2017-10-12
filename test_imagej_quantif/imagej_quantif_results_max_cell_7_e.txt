@@ -1,0 +1,11 @@
+
+Procedure for quantification microscopy data using ImageJ. 
+
+The movie is MAX_Cell_7_e.tif. 
+
+
+- Duplicate the green channel (so that the quantification is done on this image, while seeing/tracking the mitochondrion using the other image).
+- Analysis->Set Measurements . Here, select Area, Min/Max grey value, Integrated density, mean gray value (at least).
+- Select an area in the image (green channel) using the circle shape
+- For each time point, place the circle selection on ATG13 and measured (Ctrl->M) first. Then do the same on an area in the background later. Therefore for each time point, measure ATG13 `patch` and a background patch of same size. (I think this would be important as the green intensity decreases over time, and so the background should be removed proportionally.) 
+- Then copy this table in the attached spreadsheet, and computed the ATG13 signal without background using the formula CTCS=intDen_ATG13-(area_ATG13*mean_BG)
