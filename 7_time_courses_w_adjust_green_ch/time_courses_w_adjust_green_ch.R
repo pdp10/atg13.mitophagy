@@ -88,7 +88,7 @@ for(i in 1:length(files)) {
   filename <- paste0(gsub("_synchronised", "", files[i]), "_regularised")
   
   
-  data.unsynch <- data.frame(time=data[,1], apply(data[,2:ncol(data)], 2, function(x){c(x[which.min(is.na(x)):length(x)], rep(NA, which.min(is.na(x))-1))}))
+  data.unsynch <- data.frame(Time=data[,1], apply(data[,2:ncol(data)], 2, function(x){c(x[which.min(is.na(x)):length(x)], rep(NA, which.min(is.na(x))-1))}))
   write.table(data.unsynch, file=paste0(location, filename, suffix), row.names=FALSE, quote=FALSE, sep=',')
   
   plots <- plot_combined_tc(data.unsynch, expand.xaxis=TRUE)
@@ -102,7 +102,7 @@ for(i in 1:length(files)) {
   ##################################
   
   # rename the columns
-  colnames(data) <- c("time", gsub("MAX_Cell", "", tail(colnames(data), ncol(data)-1)))
+  colnames(data) <- c("Time", gsub("MAX_Cell", "", tail(colnames(data), ncol(data)-1)))
   # plot the synchronised filtered time courses
   plot.arrange <- plot_synchronised_tc(data, paste0(files[i], '_regularised'), ylab='Normalised Intensity Mean [a.u.]')
   colnames(data)[2:ncol(data)] <- paste0("MAX_Cell", colnames(data)[2:ncol(data)])

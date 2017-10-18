@@ -61,7 +61,7 @@ for(f in files) {
   print(f)
   df <- read.table( paste0(location, f, suffix), header=TRUE, na.strings="NA", dec=".", sep=",")
   # rename the columns
-  colnames(df) <- c("time", gsub("MAX_Cell", "", tail(colnames(df), ncol(df)-1)))
+  colnames(df) <- c("Time", gsub("MAX_Cell", "", tail(colnames(df), ncol(df)-1)))
 
   # plot the synchronised time courses
   plot.arrange <- plot_synchronised_tc(df, f, ylab='Intensity Mean [a.u.]')

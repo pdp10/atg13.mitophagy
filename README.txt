@@ -1,3 +1,7 @@
+This folder contains real mitophagy events which were analysed by Piero. This data set is used for further analysis.
+
+
+
 
 - data/:
 data sets for data analysis.

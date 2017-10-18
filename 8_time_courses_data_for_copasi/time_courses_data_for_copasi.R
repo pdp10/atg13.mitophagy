@@ -25,38 +25,39 @@
 
 
 
-#4
-print('4_signal_decrease_data')
-setwd('4_signal_decrease_data')
-source('signal_decrease_data.R')
-rm(list = ls())
-setwd('../')
+# generate time course data for Copasi
 
-#5
-print('5_mitophagy_time_courses_plots')
-setwd('5_mitophagy_time_courses_plots')
-source('mitophagy_time_courses_plots.R')
-rm(list = ls())
-setwd('../')
 
-#6
-print('6_synchronised_time_courses')
-setwd('6_synchronised_time_courses')
-source('synchronised_time_courses.R')
-rm(list = ls())
-setwd('../')
+library(reshape2)
 
-#7
-print('7_time_courses_w_adjust_green_ch')
-setwd('7_time_courses_w_adjust_green_ch')
-source('time_courses_w_adjust_green_ch.R')
-rm(list = ls())
-setwd('../')
 
-#8
-print('8_time_courses_data_for_copasi')
-setwd('8_time_courses_data_for_copasi')
-source('time_courses_data_for_copasi.R')
-rm(list = ls())
-setwd('../')
+##########
+# DATA SET
+##########
+
+suffix <- '.csv'
+location <- '../data/'
+filenames <- c('mitophagy_summary_intensity_mean_ch2__synchronised_filtered_regularised', 
+               'mitophagy_summary_intensity_mean_ch2__synchronised_regularised')
+
+filenames.out <- c('mitophagy_atg13_tc_filtered__copasi', 
+                   'mitophagy_atg13_tc__copasi')
+
+location.copasi <- '../../Models/'
+
+
+
+for(i in 1:length(filenames)) {
+  # DATA LOADING
+  data <- read.table( paste0(location, filenames[i], suffix), header=TRUE, na.strings="NA", dec=".", sep=",")
+  
+  # MELT
+  data.copasi <- melt(data, id.vars=c('Time'), value.name = 'ATG13_obs')
+  data.copasi <- subset(data.copasi, select=-c(variable))
+  
+  # DATA WRITING
+  write.table(data.copasi, file=paste0(location.copasi, filenames.out[i], suffix), sep="\t", na="", dec=".", row.names=FALSE, quote=FALSE)
+  print(paste0('Copasi data set saved in: ', location.copasi, filenames.out[i], suffix))
+  
+}
 

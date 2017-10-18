@@ -72,7 +72,7 @@ equation <- function(x, digits=4) {
 compute_mean_error <- function(df, filename, ylab, show.linear.model=FALSE) {
   
   dfnt <- df[,-1]
-  time_vec <- subset(df, select=c('time'))
+  time_vec <- subset(df, select=c('Time'))
   
   means <- apply(dfnt, 1, mean, na.rm=TRUE)
   stdevs <- sqrt(apply(dfnt, 1, var,na.rm=TRUE))
@@ -80,22 +80,22 @@ compute_mean_error <- function(df, filename, ylab, show.linear.model=FALSE) {
   stderrs <- stdevs / sqrt(lengths)
   ci95 <- qnorm(.975)*(stderrs)
   
-  statdf <- data.frame(time=time_vec, means=means, stdevs=stdevs, ci95=ci95)
-  colnames(statdf)[1] <- 'time'
+  statdf <- data.frame(Time=time_vec, means=means, stdevs=stdevs, ci95=ci95)
+  colnames(statdf)[1] <- 'Time'
   #print(statdf)
   
   if(show.linear.model) {
-    fit <- lm(means ~ time, data = statdf)
+    fit <- lm(means ~ Time, data = statdf)
   }
   
   # plot mean+sd+ci95
-  g <- ggplot(statdf, aes(x=time, y=means)) + 
+  g <- ggplot(statdf, aes(x=Time, y=means)) + 
     # SD
     geom_errorbar(aes(ymin=means-stdevs, ymax=means+stdevs)) + 
-    geom_line(aes(x=time, y=means), color="black", size=0.7) +
+    geom_line(aes(x=Time, y=means), color="black", size=0.7) +
     # CI 95%
     geom_errorbar(aes(ymin=means-ci95, ymax=means+ci95), colour="magenta") +
-    geom_line(aes(x=time, y=means), color="black", size=0.7) +
+    geom_line(aes(x=Time, y=means), color="black", size=0.7) +
     labs(x="Time [s]", y=ylab, title=paste0('Mitophagy Time Courses (n=', ncol(df)-1, ')')) +
     theme_basic(base_size=22)
   
@@ -111,7 +111,7 @@ compute_mean_error <- function(df, filename, ylab, show.linear.model=FALSE) {
     write.table(data.regr, file=paste0(filename, '_linear_regression_data.csv'), row.names=FALSE, quote=FALSE, sep=',')
   }
   
-  colnames(statdf) <- c("time", "mean", "sd", "ci95")
+  colnames(statdf) <- c("Time", "mean", "sd", "ci95")
   write.table(statdf, file=paste0(filename, "_stats.csv"), sep=",", row.names=FALSE)
   return (g)
 }
@@ -120,7 +120,7 @@ compute_mean_error <- function(df, filename, ylab, show.linear.model=FALSE) {
 # Apply a smooth.spline to a data frame
 spline.data.frame <- function(data, spar) {
   # create the spline for time
-  data.spline <- data.frame(time=smooth.spline(data[,1], spar=spar)$y)
+  data.spline <- data.frame(Time=smooth.spline(data[,1], spar=spar)$y)
   # create the splines for each event
   for(i in 2:ncol(data)) {
     sp <- smooth.spline(na.omit(data[,i]), spar=spar)$y
@@ -135,8 +135,8 @@ spline.data.frame <- function(data, spar) {
 
 # plot the time course repeats
 plot_tc_repeats <- function(df, ylab) {
-  df.melt <- melt(df,id.vars=c("time"), variable.name = 'repeats')
-  g <- ggplot() + geom_line(data=df.melt,aes(x=time,y=value,color=repeats), size=0.5) +
+  df.melt <- melt(df,id.vars=c("Time"), variable.name = 'repeats')
+  g <- ggplot() + geom_line(data=df.melt,aes(x=Time,y=value,color=repeats), size=0.5) +
     labs(x="Time [s]", y=ylab, title=paste0('Mitophagy Time Courses (n=', ncol(df)-1, ')')) +
     theme_basic(base_size=22)  
   return(g)
@@ -144,7 +144,7 @@ plot_tc_repeats <- function(df, ylab) {
 
 
 # Plot the time course
-plot_tc <- function(df, title='title', xlab='time [s]', ylab='signal intensity [a.u.]') {
+plot_tc <- function(df, title='title', xlab='Time [s]', ylab='Sign. Int. [a.u.]') {
   g <- ggplot(data=df, aes(x=x, y=y)) + 
     geom_line() + geom_point() +
     labs(title=title, x=xlab, y=ylab) + 
@@ -238,7 +238,7 @@ plot_synchronised_tc <- function(df, filename, ylab) {
 # Filter the data set
 data_filtering <- function(df, remove.cols, remove.row.head, remove.row.tail) {
   # remove the unwanted columns
-  df.filt <- df[, !(names(df) %in% c('time'))]
+  df.filt <- df[, !(names(df) %in% c('Time'))]
   df.filt <- df.filt[, !(names(df.filt) %in% remove.cols)]
   
   # remove first and last entries
@@ -249,7 +249,7 @@ data_filtering <- function(df, remove.cols, remove.row.head, remove.row.tail) {
   df.filt <- log10(df.filt)
   
   # apply min max 
-  df.filt <- data.frame(time=10 * 0:(nrow(df.filt)-1),
+  df.filt <- data.frame(Time=10 * 0:(nrow(df.filt)-1),
                         apply(df.filt, 2, normalise), 
                         check.names=FALSE)
   return (df.filt)
