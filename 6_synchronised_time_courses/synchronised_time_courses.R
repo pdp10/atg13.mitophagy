@@ -47,9 +47,15 @@ location <- '../data/'
 files <- c('mitophagy_summary_intensity_mean_ch2__synchronised', 'mitophagy_summary_intensity_mean_ch2_spline__synchronised')
 suffix <- '.csv'
 
+# 1st attempt
 remove.cols <- c('3_a', '3_b', '5_a', '6_d', '6_f_2', '16s_a')
-remove.row.head <- 54
-remove.row.tail <- 164
+remove.row.head <- 54     # (clear oscillations)
+remove.row.tail <-  164   # (2 repeats at least) 
+
+# 2nd attempt
+remove.cols <- c('3_a', '3_b', '5_a', '6_d', '6_f_2', '16s_a')
+remove.row.head <- 54     # (clear oscillations)
+remove.row.tail <- 145    # (3 repeats at least) 
 
 
 
