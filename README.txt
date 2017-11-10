@@ -28,6 +28,11 @@ Synchronise and plot time course data.
 - 7_time_courses_w_adjust_green_ch/:
 Adjust the time courses so that there is no signal decline over time. This was not background signal. 
 
+- 8_delay_analysis/:
+Extract delay times considering the highest (peaks) and lowest values of the mean of the oscillations.
+
+- 9_time_courses_data_for_copasi/:
+Generate the data sets for parameter estimation using Copasi.
 
 - movies_orthogonal_atg13_circle.csv:
 File containing the list of selected movies showing an accurate circle.

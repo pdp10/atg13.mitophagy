@@ -54,8 +54,15 @@ rm(list = ls())
 setwd('../')
 
 #8
-print('8_time_courses_data_for_copasi')
-setwd('8_time_courses_data_for_copasi')
+print('8_delay_analysis')
+setwd('8_delay_analysis')
+source('delay_analysis.R')
+rm(list = ls())
+setwd('../')
+
+#9
+print('9_time_courses_data_for_copasi')
+setwd('9_time_courses_data_for_copasi')
 source('time_courses_data_for_copasi.R')
 rm(list = ls())
 setwd('../')
