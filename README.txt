@@ -31,6 +31,9 @@ Adjust the time courses so that there is no signal decline over time. This was n
 - 8_delay_analysis/:
 Extract delay times considering the highest (peaks) and lowest values of the mean of the oscillations.
 
+- 8_upper_lower_bound_analysis/:
+Extract the upper and lower values of the oscillations.
+
 - 9_time_courses_data_for_copasi/:
 Generate the data sets for parameter estimation using Copasi.
 

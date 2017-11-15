@@ -60,6 +60,12 @@ source('delay_analysis.R')
 rm(list = ls())
 setwd('../')
 
+print('8_upper_lower_bound_analysis')
+setwd('8_upper_lower_bound_analysis')
+source('upper_lower_bound_analysis.R')
+rm(list = ls())
+setwd('../')
+
 #9
 print('9_time_courses_data_for_copasi')
 setwd('9_time_courses_data_for_copasi')

@@ -73,20 +73,6 @@ osc.lv <- function(vec, thres=0.5, ini.tp=0) {
   return(lv)
 }
 
-# calculate the delays between time points. This is zero between the first two time points
-# delays are assumed to increase with time.
-calculate.delays <- function(vec) {
-  vec.delay <- c(0)
-  delay1 <- 0
-  if(length(vec) > 2) {
-    delay1 <- vec[2]-vec[1]
-  }
-  for(i in 2:length(vec)) {
-    vec.delay <- c(vec.delay, vec[i]-vec[i-1]-delay1)
-  }
-  return(vec.delay)
-}
-
 
 
 ##########
@@ -104,41 +90,46 @@ data <- read.table( paste0(location, filename, suffix), header=TRUE, na.strings=
 # Extract the delays
 ####################
 
-# extract the delays from the mean of the time courses
-# Although this method collects a little amount of data, these are accurate
-# because the mean is smoother and the peaks are well defined. To add more data points, 
-# we can calculate the delays from the lowest points of the mean oscillation. 
-data.means <- apply(data, 1, mean, na.rm=TRUE)
-# highest values time points and intensities of the mean oscillations
-hv <- osc.hv(data.means, thres=0.4, ini.tp=0)
-hv.tc <- as.numeric(names(hv))
-delay <- calculate.delays(hv.tc)
-data.plot.hv <- data.frame(time=hv.tc, val=hv, delay, pos=rep('top', length(hv)))
 
-# lowest values time points and intensities of the mean oscillations
-lv <- osc.lv(data.means, thres=0.25, ini.tp=0)
-lv.tc <- as.numeric(names(lv))
-delay <- calculate.delays(lv.tc)
-data.plot.lv <- data.frame(time=lv.tc, val=lv, delay, pos=rep('bottom', length(lv)))
+# EXTRACT THE UPPER VALUES (the peaks)
+
+# extract the delays from the time courses
+data.plot.hv <- data.frame(time=numeric(0), val=numeric(0))
+for(i in 1:ncol(data)) {
+ col.i <- data[,i]
+ names(col.i) <- row.names(data)
+ hv.i <- osc.hv(col.i, thres=0.50)
+ hv.tc.i <- as.numeric(names(hv.i))
+ data.plot.hv <- rbind(data.plot.hv, data.frame(time=hv.tc.i, val=hv.i))
+}
+data.plot.hv <- cbind(data.plot.hv, pos=rep('top', nrow(data.plot.hv)))
 
 # plot
-data.plot <- rbind(data.plot.hv, data.plot.lv)
 g <- ggplot() + 
-  geom_point(data=data.plot, aes(x=time, y=delay, col=pos)) +  
-  labs(title='Delays of Mean Oscillation', x='Time [s]', y='Delay [s]') +
+  geom_point(data=data.plot.hv, aes(x=time, y=val)) +  
+  labs(title='Oscillation upper bounds', x='Time [s]', y='Intensity [a.u.]') +
   theme_basic()
-ggsave(paste0(filename, '_delay.png'), width=4, height=3, dpi=300)
-write.table(data.plot, file=paste0(filename, '_delay', suffix), row.names=FALSE, quote=FALSE, sep=',')
+ggsave(paste0(filename, '_upper_bounds.png'), width=4, height=3, dpi=300)
+write.table(data.plot, file=paste0(filename, '_upper_bounds', suffix), row.names=FALSE, quote=FALSE, sep=',')
 
 
 
-# Save the mean of the lowest values. THE ACTUAL LOWEST VALUES, not from the mean.
-# This corresponds to ATG13LT in the model
-data.min <- apply(data, 1, min, na.rm=TRUE)
-lv.min <- osc.lv(data.min, thres=0.05)
-# we remove 0s
-#lv.min[lv.min == 0] <- NA
-lv.min.mean <- mean(lv.min, na.rm=TRUE)
-names(lv.min.mean) <- 'mean_lowest_vals'
-write.table(lv.min.mean, file=paste0(filename, '_lv_mean', suffix), row.names=TRUE, col.names=FALSE, quote=FALSE, sep=',')
+# extract the delays from the time courses
+data.plot.lv <- data.frame(time=numeric(0), val=numeric(0))
+for(i in 1:ncol(data)) {
+  col.i <- data[,i]
+  names(col.i) <- row.names(data)
+  lv.i <- osc.lv(col.i, thres=0.30)
+  lv.tc.i <- as.numeric(names(lv.i))
+  data.plot.lv <- rbind(data.plot.lv, data.frame(time=lv.tc.i, val=lv.i))
+}
+data.plot.lv <- cbind(data.plot.lv, pos=rep('bottom', nrow(data.plot.lv)))
+
+# plot
+g <- ggplot() + 
+  geom_point(data=data.plot.lv, aes(x=time, y=val)) +  
+  labs(title='Oscillation lower bounds', x='Time [s]', y='Intensity [a.u.]') +
+  theme_basic()
+ggsave(paste0(filename, '_lower_bounds.png'), width=4, height=3, dpi=300)
+write.table(data.plot, file=paste0(filename, '_lower_bounds', suffix), row.names=FALSE, quote=FALSE, sep=',')
 
