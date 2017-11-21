@@ -73,3 +73,9 @@ source('time_courses_data_for_copasi.R')
 rm(list = ls())
 setwd('../')
 
+#10
+print('10_exp_tc_distrib')
+setwd('10_exp_tc_distrib')
+source('exp_tc_distrib.R')
+rm(list = ls())
+setwd('../')

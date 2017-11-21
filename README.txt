@@ -37,6 +37,10 @@ Extract the upper and lower values of the oscillations.
 - 9_time_courses_data_for_copasi/:
 Generate the data sets for parameter estimation using Copasi.
 
+- 10_exp_tc_distrib/:
+Plot time courses in a heatmap
+
+
 - movies_orthogonal_atg13_circle.csv:
 File containing the list of selected movies showing an accurate circle.
 

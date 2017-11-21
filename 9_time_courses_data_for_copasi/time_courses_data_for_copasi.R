@@ -77,7 +77,7 @@ for(i in 1:length(filenames.tc)) {
 data.delay <- read.table( paste0(location.delay, filename.delay, suffix), header=TRUE, na.strings="NA", dec=".", sep=",")
 
 data.copasi.delay <- data.delay[,c(1,2,3)]
-colnames(data.copasi.delay) <- c('Time', 'ATG13_mean_obs', 'delay_obs')
+colnames(data.copasi.delay) <- c('Time', 'ATG13_mean_obs', 'osc_delay_obs')
 
 # set negative values to 0
 #data.copasi.delay <- apply(data.copasi.delay, c(1,2), function(x) {if(x<0) x=0 else x})
