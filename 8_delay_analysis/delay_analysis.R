@@ -142,3 +142,30 @@ lv.min.mean <- mean(lv.min, na.rm=TRUE)
 names(lv.min.mean) <- 'mean_lowest_vals'
 write.table(lv.min.mean, file=paste0(filename, '_lv_mean', suffix), row.names=TRUE, col.names=FALSE, quote=FALSE, sep=',')
 
+
+
+
+
+## LET'S NOW CALCULATE the time from bottom to peak. We know that ATG13 peak times follow a normal distribution from ATG13 in generic autophagy data.
+# Therefore, we compute these time differences, calculate the mean+sd. Then we will sample from the event delay for switching ATG13 kinetic rate constants 
+# from N(mean, sd) .
+
+data.plot.sorted.time <- data.plot[with(data.plot, order(time)), ]
+
+# we cut off the first point (which is a TOP and we do not care), and points after 600s because they are too noisy.
+data.plot.sorted.time <- data.plot.sorted.time[data.plot.sorted.time$time>40 & data.plot.sorted.time$time<600,]
+
+# extract the top and the bottom
+data.plot.sorted.time.top <- data.plot.sorted.time[data.plot.sorted.time$pos=='top',]
+data.plot.sorted.time.bottom <- data.plot.sorted.time[data.plot.sorted.time$pos=='bottom',]
+bottom.top.time.diff <- c()
+for(i in 1:nrow(data.plot.sorted.time.top)) {
+  bottom.top.time.diff <- c(bottom.top.time.diff, data.plot.sorted.time.top$time[i] - data.plot.sorted.time.bottom$time[i])
+}
+
+bottom.top.time.diff.mean <- mean(bottom.top.time.diff)
+bottom.top.time.diff.sd <- sd(bottom.top.time.diff)
+
+df.bottom.top <- data.frame(mean=bottom.top.time.diff.mean, sd=bottom.top.time.diff.sd)
+write.table(df.bottom.top, file=paste0(filename, '__atg13_accum_time_stats', suffix), row.names=FALSE, col.names=TRUE, quote=FALSE, sep=',')
+
