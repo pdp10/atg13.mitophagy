@@ -245,8 +245,11 @@ data_filtering <- function(df, remove.cols, remove.row.head, remove.row.tail) {
   df.filt <- df.filt[1:remove.row.tail, ]
   df.filt <- df.filt[remove.row.head:nrow(df.filt), ]  
   
-  # log my data
-  df.filt <- log10(df.filt)
+  # log my data.
+  # FluorescenceIntensity/ProteinConcentration is a sigmoid curve, but the central 
+  # part, which represents our data, is nearly-linear. Therefore, we do not need to 
+  # log our data. 
+  # df.filt <- log10(df.filt)
   
   # apply min max 
   df.filt <- data.frame(Time=10 * 0:(nrow(df.filt)-1),

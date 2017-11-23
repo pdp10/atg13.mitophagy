@@ -110,7 +110,7 @@ g <- ggplot() +
   labs(title='Oscillation upper bounds', x='Time [s]', y='Intensity [a.u.]') +
   theme_basic()
 ggsave(paste0(filename, '_upper_bounds.png'), width=4, height=3, dpi=300)
-write.table(data.plot, file=paste0(filename, '_upper_bounds', suffix), row.names=FALSE, quote=FALSE, sep=',')
+write.table(data.plot.hv, file=paste0(filename, '_upper_bounds', suffix), row.names=FALSE, quote=FALSE, sep=',')
 
 
 
@@ -131,5 +131,5 @@ g <- ggplot() +
   labs(title='Oscillation lower bounds', x='Time [s]', y='Intensity [a.u.]') +
   theme_basic()
 ggsave(paste0(filename, '_lower_bounds.png'), width=4, height=3, dpi=300)
-write.table(data.plot, file=paste0(filename, '_lower_bounds', suffix), row.names=FALSE, quote=FALSE, sep=',')
+write.table(data.plot.lv, file=paste0(filename, '_lower_bounds', suffix), row.names=FALSE, quote=FALSE, sep=',')
 
