@@ -75,7 +75,7 @@ for(i in 1:length(files)) {
   }
   
   # re-apply min max 
-  data[, 2:ncol(data)] <- data.frame(apply(data[, 2:ncol(data)], 2, normalise), check.names=FALSE)
+  #data[, 2:ncol(data)] <- data.frame(apply(data[, 2:ncol(data)], 2, normalise), check.names=FALSE)
   
   write.table(data, file=paste0(location, files[i], '_regularised', suffix), row.names=FALSE, quote=FALSE, sep=',')
   

@@ -88,6 +88,32 @@ calculate.delays <- function(vec) {
 }
 
 
+# merge the values having column name difference (delay) less than time.diff. 
+# e.g. X1=560, X2=580 => X1=570
+merge.values <- function(vec, time.diff=20) {
+  vec.new <- c()
+  vec.times <- as.numeric(names(vec))
+  i <- 2
+  while(i <= length(vec.times)) {
+    curr.diff <- vec.times[i]-vec.times[i-1]
+    if(curr.diff <= time.diff) {
+      # the new element will be the average
+      vec.new <- c(vec.new, (vec[i]+vec[i-1])/2)
+      names(vec.new)[i-1] <- (vec.times[i]+vec.times[i-1])/2
+      # we need to skip one element
+      i <- i+1
+    } else {
+      vec.new <- c(vec.new, vec[i-1])
+    }
+    i <- i + 1
+  }
+  # add the last value
+  if(vec.times[length(vec.times)]-as.numeric(names(vec.new))[length(vec.new)] > time.diff) {
+    vec.new <- c(vec.new, vec[length(vec)])
+  }
+  return(vec.new)
+}
+
 
 ##########
 # DATA SET
@@ -110,13 +136,23 @@ data <- read.table( paste0(location, filename, suffix), header=TRUE, na.strings=
 # we can calculate the delays from the lowest points of the mean oscillation. 
 data.means <- apply(data, 1, mean, na.rm=TRUE)
 # highest values time points and intensities of the mean oscillations
-hv <- osc.hv(data.means, thres=0.4, ini.tp=0)
+## with min-max scaling
+#hv <- osc.hv(data.means, thres=0.4, ini.tp=0)
+## without min-max scaling
+hv <- osc.hv(data.means, thres=1500, ini.tp=0)
+# merge values if the time difference is smaller than time.diff 
+hv <- merge.values(hv, time.diff=20)
 hv.tc <- as.numeric(names(hv))
 delay <- calculate.delays(hv.tc)
 data.plot.hv <- data.frame(time=hv.tc, val=hv, delay, pos=rep('top', length(hv)))
 
 # lowest values time points and intensities of the mean oscillations
-lv <- osc.lv(data.means, thres=0.25, ini.tp=0)
+## with min-max scaling
+#lv <- osc.lv(data.means, thres=0.25, ini.tp=0)
+## with min-max scaling
+lv <- osc.lv(data.means, thres=1300, ini.tp=0)
+# merge values if the time difference is smaller than time.diff 
+lv <- merge.values(lv, time.diff=20)
 lv.tc <- as.numeric(names(lv))
 delay <- calculate.delays(lv.tc)
 data.plot.lv <- data.frame(time=lv.tc, val=lv, delay, pos=rep('bottom', length(lv)))
@@ -133,14 +169,32 @@ write.table(data.plot, file=paste0(filename, '_delay', suffix), row.names=FALSE,
 
 
 # Save the mean of the lowest values. THE ACTUAL LOWEST VALUES, not from the mean.
-# This corresponds to ATG13LT in the model
+# This corresponds to ATG13_min in the model
 data.min <- apply(data, 1, min, na.rm=TRUE)
-lv.min <- osc.lv(data.min, thres=0.05)
+## with min-max scaling
+#lv.min <- osc.lv(data.min, thres=0.05)
+## without min-max scaling
+lv.min <- osc.lv(data.min, thres=1300)
 # we remove 0s
 #lv.min[lv.min == 0] <- NA
 lv.min.mean <- mean(lv.min, na.rm=TRUE)
 names(lv.min.mean) <- 'mean_lowest_vals'
 write.table(lv.min.mean, file=paste0(filename, '_lv_mean', suffix), row.names=TRUE, col.names=FALSE, quote=FALSE, sep=',')
+
+
+# Save the mean of the highest values. THE ACTUAL HIGHEST VALUES, not from the mean.
+# This corresponds to ATG13_max in the model
+data.max <- apply(data, 1, max, na.rm=TRUE)
+## with min-max scaling
+#hv.max <- osc.hv(data.max, thres=0.7)
+## without min-max scaling
+hv.max <- osc.hv(data.max, thres=1500)
+# we remove 0s
+#hv.max[hv.max == 0] <- NA
+hv.max.mean <- mean(hv.max, na.rm=TRUE)
+names(hv.max.mean) <- 'mean_highest_vals'
+write.table(hv.max.mean, file=paste0(filename, '_hv_mean', suffix), row.names=TRUE, col.names=FALSE, quote=FALSE, sep=',')
+
 
 
 

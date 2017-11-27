@@ -251,9 +251,14 @@ data_filtering <- function(df, remove.cols, remove.row.head, remove.row.tail) {
   # log our data. 
   # df.filt <- log10(df.filt)
   
-  # apply min max 
+  # apply min max (DISCARD min-max rescaling)
+  #df.filt <- data.frame(Time=10 * 0:(nrow(df.filt)-1),
+  #                      apply(df.filt, 2, normalise), 
+  #                      check.names=FALSE)
+  
   df.filt <- data.frame(Time=10 * 0:(nrow(df.filt)-1),
-                        apply(df.filt, 2, normalise), 
-                        check.names=FALSE)
+                        df.filt, 
+                        check.names=FALSE)  
+  
   return (df.filt)
 }
