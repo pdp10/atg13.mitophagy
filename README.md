@@ -10,6 +10,8 @@ Data analysis for mitophagy events targetting ATG13 as readout. These data were 
 
 - data/: data sets for data analysis.
 
+- utilities/: R files containing common functions.
+
 - 1_large_images/: confocal images AFTER colour alignment using imagej. 
 
 - 2_selected/: mitophagy events selected from movies in large_images/
