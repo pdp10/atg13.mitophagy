@@ -86,10 +86,40 @@ filename <- 'mitophagy_summary_intensity_mean_ch2__synchronised_filtered_regular
 data <- read.table( paste0(location, filename, suffix), header=TRUE, na.strings="NA", dec=".", sep=",", row.names=1)
 
 
+
+# ##########################
+# # PLOT SPLINE TIME COURSES
+# ##########################
+# 
+# # we also plot the splines of these time courses
+# # spar: smoothing parameter, typically (but not necessarily) in (0,1]
+# # spars <- c(0.3, 0.4, 0.5, 0.6)
+# # 0.4 is the best trade-off
+# spar <- 0.4
+# 
+# data.spline <- spline.data.frame(data, spar)
+# write.table(data.spline, file=paste0(location, file, '_spline', suffix), sep=",", row.names=FALSE)
+#   
+# # Plot all time course splines. x axis is expanded. Plots have different timings
+# plots <- plot_combined_tc(data.spline, expand.xaxis=TRUE)
+# plot.arrange <- do.call(grid.arrange, c(plots$plots, ncol=5, bottom=paste0(file, '_spline', suffix)))
+# ggsave(paste0(filename, '_spline_all.png'), plot=plot.arrange, width=13, height=13, dpi=300)
+# 
+# data <- data.spline
+
+
 ####################
 # Extract the delays
 ####################
 
+# we manually extracted thresholds for each time course. These are used to determine the highest and lowest values of 
+# the oscillations.
+print(colnames(data))
+#thres.hv <- c(1500,1500,1500,1500,1500,1400,1500,1500,2500,1700,1500,1600,1600,1700,1400,1300,1200)
+#thres.lv <- c(1300,1300,1300,1400,1400,1100,1200,1200,1500,1500,1200,1500,1500,1400,1200,1200,1100)
+
+thres.hv <- c(1500,1500,1500,1500,1500,1400,1500,1500,2500,1700,1500,1600,1600,1700,1400,1300,1200)
+thres.lv <- c(1300,1300,1300,1300,1300,1100,1200,1200,1300,1300,1200,1300,1300,1300,1200,1200,1100)
 
 # EXTRACT THE UPPER VALUES (the peaks)
 
@@ -98,7 +128,10 @@ data.plot.hv <- data.frame(time=numeric(0), val=numeric(0))
 for(i in 1:ncol(data)) {
  col.i <- data[,i]
  names(col.i) <- row.names(data)
- hv.i <- osc.hv(col.i, thres=0.50)
+ ## with min-max scaling
+ #hv.i <- osc.hv(col.i, thres=0.50)
+ ## without min-max scaling
+ hv.i <- osc.hv(col.i, thres=thres.hv[i])
  hv.tc.i <- as.numeric(names(hv.i))
  data.plot.hv <- rbind(data.plot.hv, data.frame(time=hv.tc.i, val=hv.i))
 }
@@ -112,14 +145,25 @@ g <- ggplot() +
 ggsave(paste0(filename, '_upper_bounds.png'), width=4, height=3, dpi=300)
 write.table(data.plot.hv, file=paste0(filename, '_upper_bounds', suffix), row.names=FALSE, quote=FALSE, sep=',')
 
+# density plot
+g <- ggplot(data.plot.hv, aes(x=val)) + 
+  geom_density(colour = "black", fill = "#56B4E9", alpha=0.5) +
+  labs(title='Density of upper bounds', x='signal intensity [a.u.]') +
+  theme_basic()
+ggsave(paste0(filename, '_upper_bounds_density.png'), width=4, height=3, dpi=300)
 
+
+# EXTRACT THE LOWER VALUES (the lower peaks)
 
 # extract the delays from the time courses
 data.plot.lv <- data.frame(time=numeric(0), val=numeric(0))
 for(i in 1:ncol(data)) {
   col.i <- data[,i]
   names(col.i) <- row.names(data)
-  lv.i <- osc.lv(col.i, thres=0.30)
+  ## with min-max scaling
+  #lv.i <- osc.lv(col.i, thres=0.30)
+  ## without min-max scaling
+  lv.i <- osc.lv(col.i, thres=thres.lv[i])
   lv.tc.i <- as.numeric(names(lv.i))
   data.plot.lv <- rbind(data.plot.lv, data.frame(time=lv.tc.i, val=lv.i))
 }
@@ -133,3 +177,16 @@ g <- ggplot() +
 ggsave(paste0(filename, '_lower_bounds.png'), width=4, height=3, dpi=300)
 write.table(data.plot.lv, file=paste0(filename, '_lower_bounds', suffix), row.names=FALSE, quote=FALSE, sep=',')
 
+# density plot
+g <- ggplot(data.plot.lv, aes(x=val)) + 
+  geom_density(colour = "black", fill = "#56B4E9", alpha=0.5) +
+  labs(title='Density of lower bounds', x='signal intensity [a.u.]') +
+  theme_basic()
+ggsave(paste0(filename, '_lower_bounds_density.png'), width=4, height=3, dpi=300)
+
+
+# write the peaks stats
+
+peaks.stats <- data.frame(type=c('top', 'bottom'), mean=c(mean(data.plot.hv$val), mean(data.plot.lv$val)), 
+                          sd=c(sd(data.plot.hv$val), sd(data.plot.lv$val)))
+write.table(peaks.stats, file=paste0(filename, '_peaks_stats', suffix), row.names=FALSE, col.names=TRUE, quote=FALSE, sep=',')

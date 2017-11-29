@@ -167,6 +167,20 @@ ggsave(paste0(filename, '_delay.png'), width=4, height=3, dpi=300)
 write.table(data.plot, file=paste0(filename, '_delay', suffix), row.names=FALSE, quote=FALSE, sep=',')
 
 
+# ---------------------------------
+
+# Save the mean of the highest values. THE ACTUAL HIGHEST VALUES, not from the mean.
+# This corresponds to ATG13_max in the model
+data.max <- apply(data, 1, max, na.rm=TRUE)
+## with min-max scaling
+#hv.max <- osc.hv(data.max, thres=0.7)
+## without min-max scaling
+hv.max <- osc.hv(data.max, thres=1400)
+# we remove 0s
+#hv.max[hv.max == 0] <- NA
+hv.max.mean <- mean(hv.max, na.rm=TRUE)
+names(hv.max.mean) <- 'mean_highest_vals'
+write.table(hv.max.mean, file=paste0(filename, '_hv_mean', suffix), row.names=TRUE, col.names=FALSE, quote=FALSE, sep=',')
 
 # Save the mean of the lowest values. THE ACTUAL LOWEST VALUES, not from the mean.
 # This corresponds to ATG13_min in the model
@@ -182,21 +196,7 @@ names(lv.min.mean) <- 'mean_lowest_vals'
 write.table(lv.min.mean, file=paste0(filename, '_lv_mean', suffix), row.names=TRUE, col.names=FALSE, quote=FALSE, sep=',')
 
 
-# Save the mean of the highest values. THE ACTUAL HIGHEST VALUES, not from the mean.
-# This corresponds to ATG13_max in the model
-data.max <- apply(data, 1, max, na.rm=TRUE)
-## with min-max scaling
-#hv.max <- osc.hv(data.max, thres=0.7)
-## without min-max scaling
-hv.max <- osc.hv(data.max, thres=1500)
-# we remove 0s
-#hv.max[hv.max == 0] <- NA
-hv.max.mean <- mean(hv.max, na.rm=TRUE)
-names(hv.max.mean) <- 'mean_highest_vals'
-write.table(hv.max.mean, file=paste0(filename, '_hv_mean', suffix), row.names=TRUE, col.names=FALSE, quote=FALSE, sep=',')
-
-
-
+# ---------------------------------
 
 
 
