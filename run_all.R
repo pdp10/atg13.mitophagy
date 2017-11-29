@@ -74,8 +74,8 @@ rm(list = ls())
 setwd('../')
 
 #10
-print('10_exp_tc_distrib')
-setwd('10_exp_tc_distrib')
-source('exp_tc_distrib.R')
+print('10_tc_heatmap')
+setwd('10_tc_heatmap')
+source('tc_heatmap.R')
 rm(list = ls())
 setwd('../')
