@@ -43,7 +43,7 @@ source('../utilities/plots.R')
 #########
 # MY DATA
 #########
-location <- '../data/'
+location <- file.path('..', '..', 'data')
 files <- c('mitophagy_summary_intensity_mean_ch2__synchronised', 'mitophagy_summary_intensity_mean_ch2_spline__synchronised')
 suffix <- '.csv'
 
@@ -65,7 +65,7 @@ remove.row.tail <- 145    # (3 repeats at least)
 
 for(f in files) {
   print(f)
-  df <- read.table( paste0(location, f, suffix), header=TRUE, na.strings="NA", dec=".", sep=",")
+  df <- read.table( file.path(location, paste0(f, suffix)), header=TRUE, na.strings="NA", dec=".", sep=",")
   # rename the columns
   colnames(df) <- c("Time", gsub("MAX_Cell", "", tail(colnames(df), ncol(df)-1)))
 
@@ -81,7 +81,7 @@ for(f in files) {
   plot.arrange <- plot_synchronised_tc(df.filt, f, ylab='Normalised Intensity Mean [a.u.]')
 
   colnames(df.filt)[2:ncol(df.filt)] <- paste0("MAX_Cell", colnames(df.filt)[2:ncol(df.filt)])
-  write.csv(df.filt, file=paste0(location, f, suffix), quote=FALSE, row.names=FALSE)
+  write.csv(df.filt, file=file.path(location, paste0(f, suffix)), quote=FALSE, row.names=FALSE)
 }
 
 

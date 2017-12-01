@@ -120,10 +120,10 @@ merge.values <- function(vec, time.diff=20) {
 ##########
 
 suffix <- '.csv'
-location <- '../data/'
+location <- file.path('..', '..', 'data')
 filename <- 'mitophagy_summary_intensity_mean_ch2__synchronised_filtered_regularised'
 
-data <- read.table( paste0(location, filename, suffix), header=TRUE, na.strings="NA", dec=".", sep=",", row.names=1)
+data <- read.table( file.path(location, paste0(filename, suffix)), header=TRUE, na.strings="NA", dec=".", sep=",", row.names=1)
 
 
 ####################

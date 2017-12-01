@@ -37,7 +37,7 @@ plotting.spline <- function(files, spline.order=20) {
   PLOTS <- list()
   for(f in files) {
     print(f)
-    data <- read.csv(paste0(location, f))
+    data <- read.csv(file.path(location, f))
     f.noext <- strsplit(f, "\\.")[[1]][1]
     p <- plot_tc_with_spline( data, file=paste0(f.noext, '_spline_data', '.csv'), spline.order, title=gsub('_signal_reduction', '', f.noext), xlab='Time [s]', ylab='Green (Ch2) Sign. Int. [a.u.]')
     PLOTS <- c(PLOTS, list(p))
@@ -50,7 +50,7 @@ plotting.regr <- function(files, file='linear_regression_data.csv') {
   PLOTS <- list()
   for(f in files) {
     print(f)
-    data <- read.csv(paste0(location, f))
+    data <- read.csv(file.path(location, f))
     f.noext <- strsplit(f, "\\.")[[1]][1]
     p <- plot_tc_with_regr_line( data, file=file, title=gsub('_signal_reduction', '', f.noext), xlab='Time [s]', ylab='Green (Ch2) Sign. Int. [a.u.]')
     PLOTS <- c(PLOTS, list(p))
@@ -64,7 +64,7 @@ plotting.regr <- function(files, file='linear_regression_data.csv') {
 # LOAD DATA
 ###########
 
-location <- '../data/'
+location <- file.path('..', '..', 'data')
 files <- list.files(path = location, pattern = "^[MAX_Cell]")
 suffix <- '.csv'
 filename <- 'mitophagy_summary_intensity_mean_ch2'

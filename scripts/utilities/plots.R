@@ -114,11 +114,11 @@ compute_mean_error <- function(df, filename, ylab, show.linear.model=FALSE) {
     
     # export regression data
     data.regr <- data.frame(regression='meansVStime', slope=coef(fit)[2], intercept=coef(fit)[1], check.names = FALSE)
-    write.table(data.regr, file=paste0(filename, '_linear_regression_data.csv'), row.names=FALSE, quote=FALSE, sep=',')
+    write.table(data.regr, file=file.path(paste0(filename, '_linear_regression_data.csv')), row.names=FALSE, quote=FALSE, sep=',')
   }
   
   colnames(statdf) <- c("Time", "mean", "sd", "ci95")
-  write.table(statdf, file=paste0(filename, "_stats.csv"), sep=",", row.names=FALSE)
+  write.table(statdf, file=file.path(paste0(filename, "_stats.csv")), sep=",", row.names=FALSE)
   return (g)
 }
 
@@ -236,7 +236,7 @@ plot_synchronised_tc <- function(df, filename, ylab) {
   PLOTS <-list(plots=c(list(g1=plot.tc, g2=plot.tc.err, g3=plot.tc.err.abline)))
   
   plot.arrange <- do.call(grid.arrange, c(PLOTS$plots, nrow=3, bottom=paste0(filename, suffix)))
-  ggsave(paste0(filename, '_all.png'), plot=plot.arrange, width=8, height=18, dpi=300)  
+  ggsave(file.path(paste0(filename, '_all.png')), plot=plot.arrange, width=8, height=18, dpi=300)  
   return(plot.arrange)
 }
 
@@ -276,7 +276,7 @@ data_filtering <- function(df, remove.cols, remove.row.head, remove.row.tail) {
 # plot the table as heatmap.Rows are sorted by maximum increasing
 # :param filename: the filename containing the table to plot
 tc_heatmap <- function(folder, filename, labCol, df.thres=17) {
-  df <- read.table(paste0(folder, filename), header=TRUE, 
+  df <- read.table(file.path(folder, paste0(filename)), header=TRUE, 
                    na.strings=c("nan", "NA", ""), 
                    dec = ".", sep=',')
   #print(df)

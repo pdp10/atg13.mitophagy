@@ -24,32 +24,10 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-# plot the table as heatmap.Rows are sorted by maximum increasing
-
-
-
-source('../utilities/plots.R')
-
-
-
-###########
-# LOAD DATA
-###########
-
-location <- '../data/'
-filename <- "mitophagy_summary_intensity_mean_ch2__synchronised_filtered_regularised"
-suffix <- '.csv'
-
-
-
-###############
-# Plot Datasets
-###############
-
-# Generate x axis labels
-expLabCol <- seq(0, 1000, 10)
-expLabCol[expLabCol %% 50 != 0] <- NA
-
-# Plot
-tc_heatmap(location, paste0(filename, suffix), expLabCol, df.thres=17)
-
+datasets: ['atg13_int_mean_ctrl.csv', 'atg13_int_mean_wrtm.csv']
+thres_lv: [1000, 1000]
+thres_hv: [2000, 1200]
+readout: 'IntensityMean'
+models_dir: '../Models'
+observable: 'ATG13_obs'
+treatment: ['FALSE', 'TRUE']

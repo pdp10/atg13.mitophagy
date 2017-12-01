@@ -24,58 +24,15 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-
-#4
-print('4_signal_decrease_data')
-setwd('4_signal_decrease_data')
-source('signal_decrease_data.R')
-rm(list = ls())
-setwd('../')
-
-#5
-print('5_mitophagy_time_courses_plots')
-setwd('5_mitophagy_time_courses_plots')
-source('mitophagy_time_courses_plots.R')
-rm(list = ls())
-setwd('../')
-
-#6
-print('6_synchronised_time_courses')
-setwd('6_synchronised_time_courses')
-source('synchronised_time_courses.R')
-rm(list = ls())
-setwd('../')
-
-#7
-print('7_time_courses_w_adjust_green_ch')
-setwd('7_time_courses_w_adjust_green_ch')
-source('time_courses_w_adjust_green_ch.R')
-rm(list = ls())
-setwd('../')
-
-#8
-print('8_delay_analysis')
-setwd('8_delay_analysis')
-source('delay_analysis.R')
-rm(list = ls())
-setwd('../')
-
-print('8_upper_lower_bound_analysis')
-setwd('8_upper_lower_bound_analysis')
-source('upper_lower_bound_analysis.R')
-rm(list = ls())
-setwd('../')
-
-#9
-print('9_time_courses_data_for_copasi')
-setwd('9_time_courses_data_for_copasi')
-source('time_courses_data_for_copasi.R')
-rm(list = ls())
-setwd('../')
-
-#10
-print('10_tc_heatmap')
-setwd('10_tc_heatmap')
-source('tc_heatmap.R')
-rm(list = ls())
-setwd('../')
+channels:
+ - r
+dependencies:
+ - r=3.3.2
+ - r-ggplot2=2.1.0
+ - r-reshape2
+ - r-gridbase
+ - r-gridextra
+ - r-tools
+ - r-gplots
+ - r-colorRamps
+ - r-rcolorBrewer
