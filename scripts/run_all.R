@@ -80,3 +80,11 @@ setwd('8_tc_heatmap')
 source('tc_heatmap.R')
 rm(list = ls())
 setwd('../')
+
+#9
+print('9_mt_diameters')
+setwd('9_mt_diameters')
+source('mt_diameters.R')
+rm(list = ls())
+setwd('../')
+

@@ -29,6 +29,7 @@
 
 library(reshape2)
 library(ggplot2)
+library(plotly)
 library(grid)
 library(gridExtra)
 
@@ -337,3 +338,109 @@ tc_heatmap <- function(folder, filename, labCol, df.thres=17) {
   return(g)
 }
 
+
+
+### STATISTICS ###
+
+
+# Basic scatter plot
+scatter_plot <- function(X, Y, se=TRUE, annot.size=5, annot.x=3, annot.y=1) {
+  df <- data.frame(X, Y)
+  # linear model for my data
+  fit <- lm(Y ~ X, data = df)
+  digits <- 2
+  g <- ggplot(df, aes(x=factor(X), y=Y, group=X)) +
+    geom_point() +
+    geom_smooth(method=lm, se=se, aes(group=1)) +
+    annotate("text", x=annot.x, y=annot.y, label = equation(fit, digits=digits), parse=TRUE, size=annot.size) +
+    theme_basic(16)
+  return(g)
+}
+
+
+# Basic violin plot
+violin_plot <- function(X, Y) {
+  df <- data.frame(X, Y)
+  g <- ggplot(df, aes(x=factor(X), y=Y, group=X)) +
+    geom_violin(trim = FALSE) + 
+    geom_jitter(height = 0, width = 0.1) +
+    theme_basic(16)
+  return(g)
+}
+
+# box violin plot
+box_plot <- function(X, Y) {
+  df <- data.frame(X, Y)
+  g <- ggplot(df, aes(x=factor(X), y=Y, group=X)) +
+    geom_boxplot() + 
+    theme_basic(16)
+  return(g)
+}
+
+
+###  for normal distribution test
+
+# QQ plot
+qq_plot <- function(vec) {
+  # following four lines from base R's qqline()
+  y <- quantile(vec[!is.na(vec)], c(0.25, 0.75))
+  x <- qnorm(c(0.25, 0.75))
+  slope <- diff(y)/diff(x)
+  int <- y[1L] - slope * x[1L]  
+  
+  df <- data.frame(residuals=vec)
+  g <- ggplot(df, aes(sample=residuals)) + 
+    stat_qq() + 
+    geom_abline(slope=slope, intercept=int) + 
+    labs(title='Normal Q-Q Plot', x='threoretical quantiles', y='sample quantiles') +
+    theme_basic(16)
+  return(g)
+}
+
+
+# density plot
+density_plot <- function(vec) {
+  df <- data.frame(residuals=vec)
+  mu <- data.frame(mu=mean(vec))
+  g <- ggplot(df, aes(x=residuals)) +
+    geom_density(col="blue", fill="lightblue", alpha = 0.25) + 
+    geom_vline(data=mu, aes(xintercept=mu), linetype="dashed") +
+    theme_basic(16)
+  return(g)
+}
+
+
+# density plot with colour
+density_plot_wcolour <- function(vec, colour) {
+  df <- data.frame(value=vec, variable=factor(colour))
+  g <- ggplot(df, aes(x=value, group=variable, col=variable, fill=variable)) +
+    stat_density(alpha=0.25) + 
+    theme_basic(16)
+  return(g)
+}
+
+
+# test whether the kurtosis is significantly different from zero.
+# not normal if > 1
+kurtosis.test <- function (x) {
+  m4 <- sum((x-mean(x))^4)/length(x)
+  s4 <- var(x)^2
+  kurt <- (m4/s4) - 3
+  sek <- sqrt(24/length(x))
+  totest <- kurt/sek
+  pvalue <- pt(totest,(length(x)-1))
+  pvalue 
+}
+
+# test whether the skewness is significantly different from zero.
+# not normal if > 1
+skew.test <- function (x) {
+  m3 <- sum((x-mean(x))^3)/length(x)
+  s3 <- sqrt(var(x))^3
+  skew <- m3/s3
+  ses <- sqrt(6/length(x))
+  totest <- skew/ses
+  pt(totest,(length(x)-1))
+  pval <- pt(totest,(length(x)-1))
+  pval
+}
