@@ -74,7 +74,7 @@ for(i in 1:nrow(selected.frames)) {
 # save table
 write.table(df.diam.means, file=file.path(location.data, paste0(filename.frame, suffix)), row.names=FALSE, quote=FALSE, sep=',')
 # save raw data table
-write.table(df.diam.means, file=file.path(location.data, paste0(filename.frame, '_raw_data', suffix)), row.names=FALSE, quote=FALSE, sep=',')
+write.table(df.diam, file=file.path(location.data, paste0(filename.frame, '_raw_data', suffix)), row.names=FALSE, quote=FALSE, sep=',')
 
 
 
@@ -84,8 +84,8 @@ write.table(df.diam.means, file=file.path(location.data, paste0(filename.frame, 
 ######
 
 # Plot mean diameters vs oscillations
-g <- scatter_plot(df.diam.means$Oscillation, df.diam.means$Mean_Diameter, annot.x=3, annot.y=0.95, annot.size=5) + 
-  labs(title='Mean diameters per frame', x='# oscillations', y='MT diameter [um]')
+g <- scatter_plot(df.diam.means$Oscillation, df.diam.means$Mean_Diameter, annot.x=2.5, annot.y=1.0, annot.size=5) + 
+  labs(title='Mean diameters per frame', x='oscillation #', y='MT diameter [um]')
 ggsave(file.path(location.results, paste0('mean_mt_diam_vs_peaks_scatterplot','.png')), width=4, height=4, dpi=300)
 
 # Q-Q plot of mean diameters
@@ -113,9 +113,14 @@ write.table(df.diam.means.stats, file=file.path(location.results, paste0('mean_m
 
 # Plot raw diameter measurements vs oscillation number
 g <- box_plot(df.diam$File, df.diam$Diameter) + 
-  labs(title='Densities of MT diameters', x='Frame', y='MT diameter [um]') +
+  labs(title='MT diameters', x='Frame', y='MT diameter [um]') +
   theme(axis.text.x=element_text(angle=90,hjust=1, vjust=0.3))
 ggsave(file.path(location.results, paste0('mt_diam_density_per_frame__boxplot','.png')), width=4, height=4, dpi=300)
+g <- violin_plot(df.diam$File, df.diam$Diameter) + 
+  labs(title='MT diameters', x='Frame', y='MT diameter [um]') +
+  theme(axis.text.x=element_text(angle=90,hjust=1, vjust=0.3))
+ggsave(file.path(location.results, paste0('mt_diam_density_per_frame__violinplot','.png')), width=4, height=4, dpi=300)
+
 
 # diameter densities by frame
 q <- density_plot_wcolour(df.diam$Diameter, df.diam$File) + 
@@ -128,20 +133,20 @@ q <- ggplotly(q)
 ggsave(file.path(location.results, paste0('mt_diam_density_per_frame','.png')), width=9, height=7, dpi=300)
 
 
-# Plot raw diameter measurements vs oscillation number
-g <- violin_plot(df.diam$Oscillation, df.diam$Diameter) + 
-  labs(title='Densities of MT diameters', x='# oscillations', y='MT diameter [um]')
-ggsave(file.path(location.results, paste0('mt_diam_density_per_osc_num__violinplot','.png')), width=4, height=4, dpi=300)
-
-# diameter densities by oscillation number
-q <- density_plot_wcolour(df.diam$Diameter, df.diam$Oscillation) + 
-  labs(x='MT diameter [um]')
-# split the densities in subplots
-q <- q + facet_wrap(~variable) + 
-  ggtitle('Densities of MT diameters per oscillation #') + 
-  theme(legend.position="none")
-ggplotly()
-ggsave(file.path(location.results, paste0('mt_diam_density_per_osc_num','.png')), width=7, height=4, dpi=300)
+# # Plot raw diameter measurements vs oscillation number
+# g <- violin_plot(df.diam$Oscillation, df.diam$Diameter) + 
+#   labs(title='MT diameters', x='oscillation #', y='MT diameter [um]')
+# ggsave(file.path(location.results, paste0('mt_diam_density_per_osc_num__violinplot','.png')), width=4, height=4, dpi=300)
+# 
+# # diameter densities by oscillation number
+# q <- density_plot_wcolour(df.diam$Diameter, df.diam$Oscillation) + 
+#   labs(x='MT diameter [um]')
+# # split the densities in subplots
+# q <- q + facet_wrap(~variable) + 
+#   ggtitle('Densities of MT diameters per oscillation #') + 
+#   theme(legend.position="none")
+# ggplotly()
+# ggsave(file.path(location.results, paste0('mt_diam_density_per_osc_num','.png')), width=7, height=4, dpi=300)
 
 
 

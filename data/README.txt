@@ -18,3 +18,4 @@ These mitophagy time courses tend to have an oscillatory behaviour but also incl
 
 - the files with "_regularised" contain the data where the green channel does not decrease over time. These data were regularised using the mean regression line in folder 6_synchronised_time_courses.
 
+- selected_movies__17.csv contains the name of the selected frames and the mitochondrial diameter data.

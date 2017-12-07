@@ -60,18 +60,35 @@ normalise <- function(x, na.rm = TRUE) {
 
 
 # return the linear model equation
-equation <- function(x, digits=4) {
+equation <- function(x, digits=4, show.r2=FALSE) {
   lm_coef <- list(a = round(coef(x)[1], digits=digits),
                   b = round(coef(x)[2], digits=digits),
                   r2 = round(summary(x)$r.squared, digits=digits));
-  if(lm_coef$b >= 0) {
-    lm_eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(R)^2~"="~r2,lm_coef)    
+  if(show.r2) {
+    if(lm_coef$b >= 0) {
+      lm_eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(R)^2~"="~r2,lm_coef)    
+    } else {
+      lm_coef$b <- abs(lm_coef$b)
+      lm_eq <- substitute(italic(y) == a - b %.% italic(x)*","~~italic(R)^2~"="~r2,lm_coef)
+    }
   } else {
-    lm_coef$b <- abs(lm_coef$b)
-    lm_eq <- substitute(italic(y) == a - b %.% italic(x)*","~~italic(R)^2~"="~r2,lm_coef)
+    if(lm_coef$b >= 0) {
+      lm_eq <- substitute(italic(y) == a + b %.% italic(x),lm_coef)    
+    } else {
+      lm_coef$b <- abs(lm_coef$b)
+      lm_eq <- substitute(italic(y) == a - b %.% italic(x),lm_coef)
+    }
   }
-  
-  as.character(as.expression(lm_eq));                 
+  return(as.character(as.expression(lm_eq)))
+}
+
+# return the linear model equation
+corr.coef <- function(x, y, digits=4, method='pearson') {
+  my.corr <- cor.test(x, y, method=method)
+  coef <- list(estimate = round(as.double(my.corr$estimate[1]), digits=digits),
+               p.value = round(as.double(my.corr$p.value), digits=7));
+  coef.str <- substitute(italic(r) == estimate*","~~italic(p)*"-"*value == p.value,coef)    
+  return(as.character(as.expression(coef.str)));
 }
 
 
@@ -353,7 +370,9 @@ scatter_plot <- function(X, Y, se=TRUE, annot.size=5, annot.x=3, annot.y=1) {
     geom_point() +
     geom_smooth(method=lm, se=se, aes(group=1)) +
     annotate("text", x=annot.x, y=annot.y, label = equation(fit, digits=digits), parse=TRUE, size=annot.size) +
+    annotate("text", x=annot.x, y=annot.y-0.04, label = corr.coef(X, Y, digits=digits), parse=TRUE, size=annot.size) +
     theme_basic(16)
+
   return(g)
 }
 
@@ -363,7 +382,7 @@ violin_plot <- function(X, Y) {
   df <- data.frame(X, Y)
   g <- ggplot(df, aes(x=factor(X), y=Y, group=X)) +
     geom_violin(trim = FALSE) + 
-    geom_jitter(height = 0, width = 0.1) +
+    geom_jitter(height = 0, width = 0.1, size=0.5) +
     theme_basic(16)
   return(g)
 }
@@ -403,7 +422,7 @@ density_plot <- function(vec) {
   df <- data.frame(residuals=vec)
   mu <- data.frame(mu=mean(vec))
   g <- ggplot(df, aes(x=residuals)) +
-    geom_density(col="blue", fill="lightblue", alpha = 0.25) + 
+    geom_density(colour = "black", fill = "#56B4E9", alpha=0.5) + 
     geom_vline(data=mu, aes(xintercept=mu), linetype="dashed") +
     theme_basic(16)
   return(g)
