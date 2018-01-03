@@ -144,7 +144,7 @@ hv <- osc.hv(data.means, thres=1500, ini.tp=0)
 hv <- merge.values(hv, time.diff=20)
 hv.tc <- as.numeric(names(hv))
 delay <- calculate.delays(hv.tc)
-data.plot.hv <- data.frame(time=hv.tc, val=hv, delay, pos=rep('top', length(hv)))
+data.plot.hv <- data.frame(time=hv.tc, val=hv, delay, type=rep('high', length(hv)))
 
 # lowest values time points and intensities of the mean oscillations
 ## with min-max scaling
@@ -155,15 +155,15 @@ lv <- osc.lv(data.means, thres=1300, ini.tp=0)
 lv <- merge.values(lv, time.diff=20)
 lv.tc <- as.numeric(names(lv))
 delay <- calculate.delays(lv.tc)
-data.plot.lv <- data.frame(time=lv.tc, val=lv, delay, pos=rep('bottom', length(lv)))
+data.plot.lv <- data.frame(time=lv.tc, val=lv, delay, type=rep('low', length(lv)))
 
 # plot
 data.plot <- rbind(data.plot.hv, data.plot.lv)
 g <- ggplot() + 
-  geom_point(data=data.plot, aes(x=time, y=delay, col=pos)) +  
-  labs(title='Delays of Mean Oscillation', x='Time [s]', y='Delay [s]') +
-  theme_basic()
-ggsave(paste0(filename, '_delay.png'), width=4, height=3, dpi=300)
+  geom_point(data=data.plot, aes(x=time, y=delay, col=type), size=2.5) +  
+  labs(title='Peak delays', x='time [s]', y='delay [s]') +
+  theme_basic(base_size=24)
+ggsave(paste0(filename, '_delay.png'), width=5, height=4, dpi=300)
 write.table(data.plot, file=paste0(filename, '_delay', suffix), row.names=FALSE, quote=FALSE, sep=',')
 
 
@@ -200,7 +200,7 @@ write.table(lv.min.mean, file=paste0(filename, '_lv_mean', suffix), row.names=TR
 
 
 
-## LET'S NOW CALCULATE the time from bottom to peak. We know that ATG13 peak times follow a normal distribution from ATG13 in generic autophagy data.
+## LET'S NOW CALCULATE the time from low to peak. We know that ATG13 peak times follow a normal distribution from ATG13 in generic autophagy data.
 # Therefore, we compute these time differences, calculate the mean+sd. Then we will sample from the event delay for switching ATG13 kinetic rate constants 
 # from N(mean, sd) .
 
@@ -209,17 +209,17 @@ data.plot.sorted.time <- data.plot[with(data.plot, order(time)), ]
 # we cut off the first point (which is a TOP and we do not care), and points after 600s because they are too noisy.
 data.plot.sorted.time <- data.plot.sorted.time[data.plot.sorted.time$time>40 & data.plot.sorted.time$time<600,]
 
-# extract the top and the bottom
-data.plot.sorted.time.top <- data.plot.sorted.time[data.plot.sorted.time$pos=='top',]
-data.plot.sorted.time.bottom <- data.plot.sorted.time[data.plot.sorted.time$pos=='bottom',]
-bottom.top.time.diff <- c()
-for(i in 1:nrow(data.plot.sorted.time.top)) {
-  bottom.top.time.diff <- c(bottom.top.time.diff, data.plot.sorted.time.top$time[i] - data.plot.sorted.time.bottom$time[i])
+# extract the high and the low
+data.plot.sorted.time.high <- data.plot.sorted.time[data.plot.sorted.time$pos=='high',]
+data.plot.sorted.time.low <- data.plot.sorted.time[data.plot.sorted.time$pos=='low',]
+low.high.time.diff <- c()
+for(i in 1:nrow(data.plot.sorted.time.high)) {
+  low.high.time.diff <- c(low.high.time.diff, data.plot.sorted.time.high$time[i] - data.plot.sorted.time.low$time[i])
 }
 
-bottom.top.time.diff.mean <- mean(bottom.top.time.diff)
-bottom.top.time.diff.sd <- sd(bottom.top.time.diff)
+low.high.time.diff.mean <- mean(low.high.time.diff)
+low.high.time.diff.sd <- sd(low.high.time.diff)
 
-df.bottom.top <- data.frame(mean=bottom.top.time.diff.mean, sd=bottom.top.time.diff.sd)
-write.table(df.bottom.top, file=paste0(filename, '__atg13_accum_time_stats', suffix), row.names=FALSE, col.names=TRUE, quote=FALSE, sep=',')
+df.low.high <- data.frame(mean=low.high.time.diff.mean, sd=low.high.time.diff.sd)
+write.table(df.low.high, file=paste0(filename, '__atg13_accum_time_stats', suffix), row.names=FALSE, col.names=TRUE, quote=FALSE, sep=',')
 

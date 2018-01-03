@@ -87,7 +87,7 @@ corr.coef <- function(x, y, digits=4, method='pearson') {
   my.corr <- cor.test(x, y, method=method)
   coef <- list(estimate = round(as.double(my.corr$estimate[1]), digits=digits),
                p.value = round(as.double(my.corr$p.value), digits=7));
-  coef.str <- substitute(italic(r) == estimate*","~~italic(p)*"-"*value == p.value,coef)    
+  coef.str <- substitute(italic(r) == estimate*","~~italic(p)*"-"*val == p.value,coef)    
   return(as.character(as.expression(coef.str)));
 }
 
@@ -116,19 +116,22 @@ compute_mean_error <- function(df, filename, ylab, show.linear.model=FALSE) {
   g <- ggplot(statdf, aes(x=Time, y=means)) + 
     # SD
     geom_errorbar(aes(ymin=means-stdevs, ymax=means+stdevs)) + 
-    geom_line(aes(x=Time, y=means), color="black", size=0.7) +
+    geom_line(aes(x=Time, y=means), color="black", size=0.5) +
     # CI 95%
     geom_errorbar(aes(ymin=means-ci95, ymax=means+ci95), colour="magenta") +
-    geom_line(aes(x=Time, y=means), color="black", size=0.7) +
-    labs(x="Time [s]", y=ylab, title=paste0('Mitophagy Time Courses (n=', ncol(df)-1, ')')) +
-    theme_basic(base_size=22)
+    geom_line(aes(x=Time, y=means), color="black", size=0.5) +
+    labs(x="Time [s]", y=ylab
+         , title=paste0('')
+         #, title=paste0('n=', ncol(df)-1)
+         ) +
+    theme_basic(base_size=34)
   
   if(show.linear.model) {
-    x0 <- 500
-    y0 <- -0.1
+    x0 <- 550 #500
+    y0 <- 500 #-0.1
     g <- g +
       stat_smooth(method = "lm", se=TRUE, color="blue", aes(group=1)) + 
-      annotate("text", x=x0, y=y0, label = equation(fit), parse = TRUE)
+      annotate("text", x=x0, y=y0, label = equation(fit), size=6, parse = TRUE)
     
     # export regression data
     data.regr <- data.frame(regression='meansVStime', slope=coef(fit)[2], intercept=coef(fit)[1], check.names = FALSE)
@@ -161,8 +164,8 @@ spline.data.frame <- function(data, spar) {
 plot_tc_repeats <- function(df, ylab) {
   df.melt <- melt(df,id.vars=c("Time"), variable.name = 'repeats')
   g <- ggplot() + geom_line(data=df.melt,aes(x=Time,y=value,color=repeats), size=0.5) +
-    labs(x="Time [s]", y=ylab, title=paste0('Mitophagy Time Courses (n=', ncol(df)-1, ')')) +
-    theme_basic(base_size=22)  
+    labs(x="Time [s]", y=ylab, title=paste0('n=', ncol(df)-1)) +
+    theme_basic(base_size=34)
   return(g)
 }
 
@@ -246,15 +249,21 @@ plot_synchronised_tc <- function(df, filename, ylab) {
   plot.tc.err <- compute_mean_error(df, filename, ylab, show.linear.model=FALSE)
   # plot mean, sd, ci95, and save stats for the tc. Also add linear model information
   plot.tc.err.abline <- compute_mean_error(df, filename, ylab, show.linear.model=TRUE)
+
   
-  # add extra margin
-  plot.tc.err <- plot.tc.err + theme(plot.margin=unit(c(0.3,3.8,0.3,0.8),"cm"))
-  plot.tc.err.abline <- plot.tc.err.abline + theme(plot.margin=unit(c(0.3,3.8,0.3,0.8),"cm"))
+  # Comment if legend is inserted
+  plot.tc <- plot.tc + theme(legend.position="none")
+  # Uncomment if legend is inserted. This adds extra margins
+  #plot.tc.err <- plot.tc.err + theme(plot.margin=unit(c(0.3,3.8,0.3,0.8),"cm"))
+  #plot.tc.err.abline <- plot.tc.err.abline + theme(plot.margin=unit(c(0.3,3.8,0.3,0.8),"cm"))
   
   PLOTS <-list(plots=c(list(g1=plot.tc, g2=plot.tc.err, g3=plot.tc.err.abline)))
   
   plot.arrange <- do.call(grid.arrange, c(PLOTS$plots, nrow=3, bottom=paste0(filename, suffix)))
-  ggsave(file.path(paste0(filename, '_all.png')), plot=plot.arrange, width=8, height=18, dpi=300)  
+  # Comment if legend is inserted 
+  ggsave(file.path(paste0(filename, '_all.png')), plot=plot.arrange, width=6, height=18, dpi=300)    
+  # Uncomment if legend is inserted 
+  #ggsave(file.path(paste0(filename, '_all.png')), plot=plot.arrange, width=8, height=18, dpi=300)  
   return(plot.arrange)
 }
 
@@ -293,7 +302,7 @@ data_filtering <- function(df, remove.cols, remove.row.head, remove.row.tail) {
 
 # plot the table as heatmap.Rows are sorted by maximum increasing
 # :param filename: the filename containing the table to plot
-tc_heatmap <- function(folder, filename, labCol, df.thres=17) {
+tc_heatmap <- function(folder, filename, labCol, title="Time courses", df.thres=17) {
   df <- read.table(file.path(folder, paste0(filename)), header=TRUE, 
                    na.strings=c("nan", "NA", ""), 
                    dec = ".", sep=',')
@@ -304,11 +313,12 @@ tc_heatmap <- function(folder, filename, labCol, df.thres=17) {
   
   # traspose the data
   df <- t(df)
-  
+
   # the first row becomes the header
   colnames(df) = df[1, ]
   # remove the first row.
   df = df[-1, ]          
+  repeats <- nrow(df)
   
   # reduce the data
   if(ncol(df) > df.thres) {
@@ -332,23 +342,27 @@ tc_heatmap <- function(folder, filename, labCol, df.thres=17) {
   
   par(cex.main=1.5, cex.axis=0.9)
   g <- heatmap.2(as.matrix(df),
-                 main = "Time courses", # heat map title
-                 density.info="none",  # turns off density plot inside color legend
-                 key=TRUE, symkey=FALSE,
-                 trace="none",        # turns off trace lines inside the heat map
-                 margins =c(5,5),     # widens margins around plot
+                 main = title, # heat map title
                  col=matlab.like(256),
                  scale="none",
                  dendrogram="none", Rowv = FALSE, Colv = FALSE,
-                 labCol=labCol, srtCol=45,
-                 cexCol=1.6,
-                 cexRow=1.1
+                 density.info="none",  # turn off density plot inside color legend
+                 key=FALSE, symkey=FALSE, # turn off key                 
+                 trace="none",        # turn off trace lines inside the heat map
+                 labRow=FALSE,        # turn off row labels
+                 margins = c(7, 4),   # reduce the right margin
+                 lwid=c(4,25), lhei=c(4,25), # adjust the margin when key=FALSE
+                 
+                 labCol=labCol,
+                 srtCol=45,
+                 cexCol=2.5,
+                 cexRow=1.6
                  # don't use this now as I haven't found a way to increase this fonts..
                  #xlab="Time (s)", ylab="Repeats by peak time"
   )
   # This works but is not elegant..
-  mtext("       Time (s)", side=1, line=4, cex=2 )
-  mtext("Repeats by peak time              ", side=4, line=1, cex=2)
+  mtext("Time [s]", side=1, line=4, cex=2.8)
+  mtext(paste0("normalised repeats (n=",repeats, ")"), side=4, line=1, cex=2.8)
   
   # close the PNG device  
   dev.off()
@@ -361,17 +375,17 @@ tc_heatmap <- function(folder, filename, labCol, df.thres=17) {
 
 
 # Basic scatter plot
-scatter_plot <- function(X, Y, se=TRUE, annot.size=5, annot.x=3, annot.y=1) {
+scatter_plot <- function(X, Y, se=TRUE, annot.size=5.5, annot.x=6.5, annot.y=1) {
   df <- data.frame(X, Y)
   # linear model for my data
   fit <- lm(Y ~ X, data = df)
   digits <- 2
-  g <- ggplot(df, aes(x=factor(X), y=Y, group=X)) +
+  g <- ggplot(df, aes(x=X, y=Y, group=X)) +
     geom_point() +
     geom_smooth(method=lm, se=se, aes(group=1)) +
     annotate("text", x=annot.x, y=annot.y, label = equation(fit, digits=digits), parse=TRUE, size=annot.size) +
     annotate("text", x=annot.x, y=annot.y-0.04, label = corr.coef(X, Y, digits=digits), parse=TRUE, size=annot.size) +
-    theme_basic(16)
+    theme_basic(24)
 
   return(g)
 }
@@ -381,9 +395,9 @@ scatter_plot <- function(X, Y, se=TRUE, annot.size=5, annot.x=3, annot.y=1) {
 violin_plot <- function(X, Y) {
   df <- data.frame(X, Y)
   g <- ggplot(df, aes(x=factor(X), y=Y, group=X)) +
-    geom_violin(trim = FALSE) + 
+    geom_violin(trim = FALSE, size=0.3) + 
     geom_jitter(height = 0, width = 0.1, size=0.5) +
-    theme_basic(16)
+    theme_basic(24)
   return(g)
 }
 
@@ -392,7 +406,7 @@ box_plot <- function(X, Y) {
   df <- data.frame(X, Y)
   g <- ggplot(df, aes(x=factor(X), y=Y, group=X)) +
     geom_boxplot() + 
-    theme_basic(16)
+    theme_basic(24)
   return(g)
 }
 
@@ -411,8 +425,8 @@ qq_plot <- function(vec) {
   g <- ggplot(df, aes(sample=residuals)) + 
     stat_qq() + 
     geom_abline(slope=slope, intercept=int) + 
-    labs(title='Normal Q-Q Plot', x='threoretical quantiles', y='sample quantiles') +
-    theme_basic(16)
+    labs(title='Normal Q-Q') +
+    theme_basic(24)
   return(g)
 }
 
@@ -422,9 +436,9 @@ density_plot <- function(vec) {
   df <- data.frame(residuals=vec)
   mu <- data.frame(mu=mean(vec))
   g <- ggplot(df, aes(x=residuals)) +
-    geom_density(colour = "black", fill = "#56B4E9", alpha=0.5) + 
+    geom_density(colour = "black", fill = "#56B4E9", alpha=0.2) + 
     geom_vline(data=mu, aes(xintercept=mu), linetype="dashed") +
-    theme_basic(16)
+    theme_basic(24)
   return(g)
 }
 
@@ -434,7 +448,7 @@ density_plot_wcolour <- function(vec, colour) {
   df <- data.frame(value=vec, variable=factor(colour))
   g <- ggplot(df, aes(x=value, group=variable, col=variable, fill=variable)) +
     stat_density(alpha=0.25) + 
-    theme_basic(16)
+    theme_basic(24)
   return(g)
 }
 

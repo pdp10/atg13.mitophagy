@@ -48,8 +48,8 @@ suffix <- '.csv'
 
 # Generate x axis labels
 expLabCol <- seq(0, 1000, 10)
-expLabCol[expLabCol %% 50 != 0] <- NA
+expLabCol[expLabCol %% 100 != 0] <- NA
 
 # Plot
-tc_heatmap(location, paste0(filename, suffix), expLabCol, df.thres=17)
+tc_heatmap(location, paste0(filename, suffix), expLabCol, title="Exp ATG13", df.thres=17)
 

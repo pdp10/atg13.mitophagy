@@ -124,7 +124,7 @@ thres.lv <- c(1300,1300,1300,1300,1300,1100,1200,1200,1300,1300,1200,1300,1300,1
 # EXTRACT THE UPPER VALUES (the peaks)
 
 # extract the delays from the time courses
-data.plot.hv <- data.frame(time=numeric(0), val=numeric(0))
+data.plot.hv <- data.frame(time=numeric(0), frame=character(0), val=numeric(0))
 for(i in 1:ncol(data)) {
  col.i <- data[,i]
  names(col.i) <- row.names(data)
@@ -133,7 +133,7 @@ for(i in 1:ncol(data)) {
  ## without min-max scaling
  hv.i <- osc.hv(col.i, thres=thres.hv[i])
  hv.tc.i <- as.numeric(names(hv.i))
- data.plot.hv <- rbind(data.plot.hv, data.frame(time=hv.tc.i, val=hv.i))
+ data.plot.hv <- rbind(data.plot.hv, data.frame(time=hv.tc.i, frame=colnames(data)[i], val=hv.i))
 }
 data.plot.hv <- cbind(data.plot.hv, pos=rep('top', nrow(data.plot.hv)))
 

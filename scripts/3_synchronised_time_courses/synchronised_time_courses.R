@@ -70,7 +70,7 @@ for(f in files) {
   colnames(df) <- c("Time", gsub("MAX_Cell", "", tail(colnames(df), ncol(df)-1)))
 
   # plot the synchronised time courses
-  plot.arrange <- plot_synchronised_tc(df, f, ylab='Intensity Mean [a.u.]')
+  plot.arrange <- plot_synchronised_tc(df, f, ylab='Int. Mean [a.u.]')
   
   
   # data filtering
@@ -78,7 +78,7 @@ for(f in files) {
   df.filt <- data_filtering(df, remove.cols, remove.row.head, remove.row.tail)
 
   # plot the synchronised filtered time courses
-  plot.arrange <- plot_synchronised_tc(df.filt, f, ylab='Normalised Intensity Mean [a.u.]')
+  plot.arrange <- plot_synchronised_tc(df.filt, f, ylab='Norm. Int. Mean [a.u.]')
 
   colnames(df.filt)[2:ncol(df.filt)] <- paste0("MAX_Cell", colnames(df.filt)[2:ncol(df.filt)])
   write.csv(df.filt, file=file.path(location, paste0(f, suffix)), quote=FALSE, row.names=FALSE)

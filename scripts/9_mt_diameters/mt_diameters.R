@@ -76,7 +76,9 @@ write.table(df.diam.means, file=file.path(location.data, paste0(filename.frame, 
 # save raw data table
 write.table(df.diam, file=file.path(location.data, paste0(filename.frame, '_raw_data', suffix)), row.names=FALSE, quote=FALSE, sep=',')
 
-
+# Name shortening
+df.diam$File <- gsub("MAX_Cell", "", df.diam$File)
+#print(df.diam)
 
 
 ######
@@ -84,8 +86,9 @@ write.table(df.diam, file=file.path(location.data, paste0(filename.frame, '_raw_
 ######
 
 # Plot mean diameters vs oscillations
-g <- scatter_plot(df.diam.means$Oscillation, df.diam.means$Mean_Diameter, annot.x=2.5, annot.y=1.0, annot.size=5) + 
-  labs(title='Mean diameters per frame', x='oscillation #', y='MT diameter [um]')
+g <- scatter_plot(df.diam.means$Oscillation, df.diam.means$Mean_Diameter, annot.x=3.0, annot.y=1.0, annot.size=5) + 
+  labs(title='', x='oscillation #', y='MT diameter [um]') + 
+  scale_x_discrete(limits=c("1","2","3","4","5","6"))
 ggsave(file.path(location.results, paste0('mean_mt_diam_vs_peaks_scatterplot','.png')), width=4, height=4, dpi=300)
 
 # Q-Q plot of mean diameters
@@ -94,10 +97,10 @@ ggsave(file.path(location.results, paste0('mean_mt_diam_qqplot','.png')), width=
 
 # Density plot of mean diameters
 q <- density_plot(df.diam.means$Mean_Diameter) + 
-  labs(title='Mean diameter density', x='MT diameter [um]') + 
-  annotate("text", x=0.85, y=4.5, label = paste0('n=', length(df.diam.means$Mean_Diameter)), size=5) + 
-  annotate("text", x=0.85, y=4, label = paste0('mu=', round(mean(df.diam.means$Mean_Diameter), digits=3)), size=5) + 
-  annotate("text", x=0.85, y=3.5, label = paste0('SD=', round(sd(df.diam.means$Mean_Diameter), digits=3)), size=5) + 
+  labs(title='', x='MT diameter [um]') + 
+  annotate("text", x=0.85, y=4.5, label = paste0('n=', length(df.diam.means$Mean_Diameter)), size=5.5) + 
+  annotate("text", x=0.85, y=4, label = paste0('mu=', round(mean(df.diam.means$Mean_Diameter), digits=3)), size=5.5) + 
+  annotate("text", x=0.85, y=3.5, label = paste0('SD=', round(sd(df.diam.means$Mean_Diameter), digits=3)), size=5.5) + 
 ggsave(file.path(location.results, paste0('mean_mt_diam_density','.png')), width=4, height=4, dpi=300)
 
 df.diam.means.stats <- data.frame(stat=c('n', 'mu', 'sd'), 
@@ -113,13 +116,15 @@ write.table(df.diam.means.stats, file=file.path(location.results, paste0('mean_m
 
 # Plot raw diameter measurements vs oscillation number
 g <- box_plot(df.diam$File, df.diam$Diameter) + 
-  labs(title='MT diameters', x='Frame', y='MT diameter [um]') +
-  theme(axis.text.x=element_text(angle=90,hjust=1, vjust=0.3))
-ggsave(file.path(location.results, paste0('mt_diam_density_per_frame__boxplot','.png')), width=4, height=4, dpi=300)
+  labs(title='MT diameter samples', x='Frames', y='MT diameter [um]') +
+  #theme(axis.text.x=element_text(angle=90,hjust=1, vjust=0.3)) + 
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
+ggsave(file.path(location.results, paste0('mt_diam_density_per_frame__boxplot','.png')), width=6, height=4, dpi=300)
 g <- violin_plot(df.diam$File, df.diam$Diameter) + 
-  labs(title='MT diameters', x='Frame', y='MT diameter [um]') +
-  theme(axis.text.x=element_text(angle=90,hjust=1, vjust=0.3))
-ggsave(file.path(location.results, paste0('mt_diam_density_per_frame__violinplot','.png')), width=4, height=4, dpi=300)
+  labs(title='MT diameter samples', x='Frames', y='MT diameter [um]') +
+  #theme(axis.text.x=element_text(angle=90,hjust=1, vjust=0.3)) + 
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
+ggsave(file.path(location.results, paste0('mt_diam_density_per_frame__violinplot','.png')), width=6, height=4, dpi=300)
 
 
 # diameter densities by frame
@@ -130,7 +135,7 @@ q <- q + facet_wrap(~variable, ncol=4) +
   ggtitle('Densities of MT diameters per frame') + 
   theme(legend.position="none")
 q <- ggplotly(q)
-ggsave(file.path(location.results, paste0('mt_diam_density_per_frame','.png')), width=9, height=7, dpi=300)
+ggsave(file.path(location.results, paste0('mt_diam_density_per_frame','.png')), width=9, height=9, dpi=300)
 
 
 # # Plot raw diameter measurements vs oscillation number

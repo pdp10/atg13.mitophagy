@@ -104,20 +104,7 @@ for(i in 1:length(files)) {
   # rename the columns
   colnames(data) <- c("Time", gsub("MAX_Cell", "", tail(colnames(data), ncol(data)-1)))
   # plot the synchronised filtered time courses
-  plot.arrange <- plot_synchronised_tc(data, paste0(files[i], '_regularised'), ylab='Normalised Intensity Mean [a.u.]')
+  plot.arrange <- plot_synchronised_tc(data, paste0(files[i], '_regularised'), ylab='Norm. Int. Mean [a.u.]')
   colnames(data)[2:ncol(data)] <- paste0("MAX_Cell", colnames(data)[2:ncol(data)])
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
