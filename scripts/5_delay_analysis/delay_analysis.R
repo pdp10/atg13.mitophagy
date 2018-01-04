@@ -157,14 +157,6 @@ lv.tc <- as.numeric(names(lv))
 delay <- calculate.delays(lv.tc)
 data.plot.lv <- data.frame(time=lv.tc, val=lv, delay, type=rep('low', length(lv)))
 
-# plot
-data.plot <- rbind(data.plot.hv, data.plot.lv)
-g <- ggplot() + 
-  geom_point(data=data.plot, aes(x=time, y=delay, col=type), size=2.5) +  
-  labs(title='Peak delays', x='time [s]', y='delay [s]') +
-  theme_basic(base_size=24)
-ggsave(paste0(filename, '_delay.png'), width=5, height=4, dpi=300)
-write.table(data.plot, file=paste0(filename, '_delay', suffix), row.names=FALSE, quote=FALSE, sep=',')
 
 
 # ---------------------------------
@@ -210,8 +202,8 @@ data.plot.sorted.time <- data.plot[with(data.plot, order(time)), ]
 data.plot.sorted.time <- data.plot.sorted.time[data.plot.sorted.time$time>40 & data.plot.sorted.time$time<600,]
 
 # extract the high and the low
-data.plot.sorted.time.high <- data.plot.sorted.time[data.plot.sorted.time$pos=='high',]
-data.plot.sorted.time.low <- data.plot.sorted.time[data.plot.sorted.time$pos=='low',]
+data.plot.sorted.time.high <- data.plot.sorted.time[data.plot.sorted.time$type=='high',]
+data.plot.sorted.time.low <- data.plot.sorted.time[data.plot.sorted.time$type=='low',]
 low.high.time.diff <- c()
 for(i in 1:nrow(data.plot.sorted.time.high)) {
   low.high.time.diff <- c(low.high.time.diff, data.plot.sorted.time.high$time[i] - data.plot.sorted.time.low$time[i])
@@ -223,3 +215,17 @@ low.high.time.diff.sd <- sd(low.high.time.diff)
 df.low.high <- data.frame(mean=low.high.time.diff.mean, sd=low.high.time.diff.sd)
 write.table(df.low.high, file=paste0(filename, '__atg13_accum_time_stats', suffix), row.names=FALSE, col.names=TRUE, quote=FALSE, sep=',')
 
+
+
+# plot
+data.plot <- rbind(data.plot.hv, data.plot.lv)
+g <- ggplot() + 
+  geom_point(data=data.plot, aes(x=time, y=delay, col=type), size=2.5) +  
+  labs(title='Peak delays', x='Time [s]', y='Delay [s]', color='Peak') +
+  annotate("text", x=320, y=155, label=paste0("high-low time diff"), parse=FALSE, size=5.5) +  
+  annotate("text", x=185, y=130, label=paste0("n=", length(low.high.time.diff)), parse=FALSE, size=5.5) +  
+  annotate("text", x=250, y=110, label=paste0("mu=", round(df.low.high$mean, digits=3)), parse=FALSE, size=5.5) +
+  annotate("text", x=230, y=90, label=paste0("SD=", round(df.low.high$sd, digits=3)), parse=FALSE, size=5.5) +  
+  theme_basic(base_size=24)
+ggsave(paste0(filename, '_delay.png'), width=5, height=4, dpi=300)
+write.table(data.plot, file=paste0(filename, '_delay', suffix), row.names=FALSE, quote=FALSE, sep=',')
