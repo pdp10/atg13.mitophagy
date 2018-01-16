@@ -373,6 +373,30 @@ tc_heatmap <- function(folder, filename, labCol, title="Time courses", df.thres=
 
 ### STATISTICS ###
 
+# https://uk.mathworks.com/help/stats/lognrnd.html?requestedDomain=true 
+
+logspace_mu <- function(mu, v) {
+  log((mu^2)/sqrt(v+mu^2))
+}
+
+
+logspace_sd <- function(mu, v) {
+  sqrt(log(v/(mu^2)+1))
+}
+
+
+skewness <- function(x, na.rm = FALSE, ...) {
+  if (na.rm) x = x[!is.na(x)]
+  return(sum((x-mean(x))^3/length(x))/sqrt(var(x))^3)
+}
+
+
+kurtosis <- function(x, na.rm = FALSE, ...) {
+  if (na.rm) x = x[!is.na(x)]
+  return(sum((x-mean(x))^4/length(x))/sqrt(var(x))^4)
+}
+
+
 
 # Basic scatter plot
 scatter_plot <- function(X, Y, se=TRUE, annot.size=5.5, annot.x=6.5, annot.y=1) {
@@ -414,21 +438,15 @@ box_plot <- function(X, Y) {
 ###  for normal distribution test
 
 # QQ plot
-qq_plot <- function(vec) {
-  # following four lines from base R's qqline()
-  y <- quantile(vec[!is.na(vec)], c(0.25, 0.75))
-  x <- qnorm(c(0.25, 0.75))
-  slope <- diff(y)/diff(x)
-  int <- y[1L] - slope * x[1L]  
-  
-  df <- data.frame(residuals=vec)
-  g <- ggplot(df, aes(sample=residuals)) + 
-    stat_qq() + 
-    geom_abline(slope=slope, intercept=int) + 
+qq_plot <- function(vec, distribution=stats::qnorm) {
+  d <- data.frame(residuals=vec)
+  g <- ggplot(d, aes(sample=residuals)) + 
+    stat_qq(distribution=distribution) + 
+    stat_qq_line(distribution=distribution) +
     labs(title='Normal Q-Q') +
     theme_basic(24)
   return(g)
-}
+} 
 
 
 # density plot

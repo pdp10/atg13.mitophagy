@@ -46,13 +46,15 @@ theme_basic <- function(base_size = 28){
 }
 
 
-logspace_mu <- function(mu, sd) {
-  log(mu) - 1/2*log((sd/mu)^2+1)
+# https://uk.mathworks.com/help/stats/lognrnd.html?requestedDomain=true 
+
+meanlog <- function(mu, v) {
+  log((mu^2)/sqrt(v+mu^2))
 }
 
 
-logspace_sd <- function(mu, sd) {
-  sqrt(log((sd/mu)^2 + 1))
+sdlog <- function(mu, v) {
+  sqrt(log(v/(mu^2)+1))
 }
 
 
@@ -65,6 +67,30 @@ skewness <- function(x, na.rm = FALSE, ...) {
 kurtosis <- function(x, na.rm = FALSE, ...) {
   if (na.rm) x = x[!is.na(x)]
   return(sum((x-mean(x))^4/length(x))/sqrt(var(x))^4)
+}
+
+
+# return the linear model equation
+equation <- function(x, digits=4, show.r2=FALSE) {
+  lm_coef <- list(a = round(coef(x)[1], digits=digits),
+                  b = round(coef(x)[2], digits=digits),
+                  r2 = round(summary(x)$r.squared, digits=digits));
+  if(show.r2) {
+    if(lm_coef$b >= 0) {
+      lm_eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(R)^2~"="~r2,lm_coef)    
+    } else {
+      lm_coef$b <- abs(lm_coef$b)
+      lm_eq <- substitute(italic(y) == a - b %.% italic(x)*","~~italic(R)^2~"="~r2,lm_coef)
+    }
+  } else {
+    if(lm_coef$b >= 0) {
+      lm_eq <- substitute(italic(y) == a + b %.% italic(x),lm_coef)    
+    } else {
+      lm_coef$b <- abs(lm_coef$b)
+      lm_eq <- substitute(italic(y) == a - b %.% italic(x),lm_coef)
+    }
+  }
+  return(as.character(as.expression(lm_eq)))
 }
 
 
@@ -93,28 +119,51 @@ plot_correlation_main <- function(dfnt, points, xlab, ylab, filenameout, locatio
 }
 
 
-my_qqplot <- function(vec, line=FALSE) {
+
+
+
+qqplot <- function(vec, distribution=stats::qnorm) {
   d <- data.frame(resids=vec)
-  g <- ggplot(d, aes(sample=resids)) + stat_qq() + 
+  g <- ggplot(d, aes(sample=resids)) + 
+    stat_qq(distribution=distribution) + 
+    stat_qq_line(distribution=distribution) +
     theme_basic()
-  if (line) {
-    y <- quantile(vec[!is.na(vec)], c(0.25, 0.75))
-    x <- qnorm(c(0.25, 0.75))
-    slope <- diff(y)/diff(x)
-    int <- y[1L] - slope * x[1L]    
-    g <- g + geom_abline(slope = slope, intercept = int)
-  }
   g
-} 
+}
+
+
+
+
+# overlay histogram, normal and lognormal densities
+hist_w_dist <- function(vec) {
+  df <- data.frame(x=vec)
+  
+  g <- ggplot(df, aes(x)) +
+    geom_histogram(aes(y = ..density..), binwidth = 1, color = "black", fill = 'white') +
+    stat_function(fun = dnorm, 
+                  args = list(mean = mean(df$x), sd = sd(df$x)), 
+                  lwd = 1,
+                  aes(colour='norm')) +
+    stat_function(fun = dlnorm, 
+                  args = list(meanlog = meanlog(mean(df$x), var(df$x)), sdlog = sdlog(mean(df$x), var(df$x))), 
+                  lwd = 1, 
+                  aes(colour='lnorm')) +
+    scale_colour_manual('distrib', values=c("blue", "red")) +
+    theme_basic() + 
+    theme(legend.position="top", legend.title=element_blank(), legend.text=element_text(size=22))
+  g
+}
+
 
 normality_analysis <- function(data, title, filenameout, location.results) {
-  # QQ Plots for initial time points  
-  q <- my_qqplot(data, TRUE) + ggtitle(paste0(title))
-  ggsave(file.path(location.results, paste0(filenameout, "_qqplot_norm.png")), 
-         dpi=300,  width=6, height=4)
-  q <- my_qqplot(log(data+1), TRUE) + ggtitle(paste0('log ', title))
-  ggsave(file.path(location.results, paste0(filenameout, "_qqplot_lognorm.png")), 
-         dpi=300,  width=6, height=4)
+  
+  q1 <- qqplot(data, stats::qnorm) + ggtitle(paste0('norm'))
+  q2 <- qqplot(data, stats::qlnorm) + ggtitle(paste0('lnorm'))
+  q3 <- hist_w_dist(data) + labs(x='sample')
+  
+  plots <- list(plots=c(list(q1), list(q2), list(q3)))
+  plot.arrange <- do.call(grid.arrange, c(plots$plots, ncol=3, top=title))
+  ggsave(file.path(location.results, paste0(filenameout, '_distrib_analysis.png')), plot=plot.arrange, width=16, height=4, dpi=300)
 }
 
 
@@ -186,7 +235,7 @@ synchronise_timecourse <- function(dfnt, init_offsets_times, latest_peak_time, y
   g <- g + 
     geom_vline(xintercept=(latest_peak_time*10)-10, size=1.5, color="black", linetype="dashed") +    
     #geom_vline(xintercept=0, size=1, color="magenta", linetype="dashed") +
-    labs(title=paste0("n=", ncol(sync_df)-1), x="Time [s]", y=ylab) + 
+    labs(title=paste0("n=", ncol(sync_df)), x="Time [s]", y=ylab) + 
     ggsave(file.path(location.results, paste0(filenameout, ".png")), 
            dpi=300,  width=6, height=4)
   
@@ -274,30 +323,30 @@ sync_tc_fun <- function(df, location.data, filenameout, ylab, location.results) 
                                 skewness(init_offsets_intensities), kurtosis(init_offsets_intensities),                                
                                 mean(peak_intensities), sqrt(var(peak_intensities)),
                                 skewness(peak_intensities), kurtosis(peak_intensities),
-                                logspace_mu(mean(init_offsets_times*10),sqrt(var(init_offsets_times*10))), logspace_sd(mean(init_offsets_times*10),sqrt(var(init_offsets_times*10))), 
-                                logspace_mu(mean(peak_times*10), sqrt(var(peak_times*10))), logspace_sd(mean(peak_times*10),sqrt(var(peak_times*10))),
-                                logspace_mu(mean(init_offsets_intensities), sqrt(var(init_offsets_intensities))), logspace_sd(mean(init_offsets_intensities*10),sqrt(var(init_offsets_intensities))),
-                                logspace_mu(mean(peak_intensities), sqrt(var(peak_intensities))), logspace_mu(mean(peak_intensities),sqrt(var(peak_intensities)))))
-  rownames(corr_stats_df) <- c('init_offsets_times_mu', 'init_offsets_times_sd', 
+                                meanlog(mean(init_offsets_times*10),var(init_offsets_times*10)), sdlog(mean(init_offsets_times*10),var(init_offsets_times*10)), 
+                                meanlog(mean(peak_times*10), var(peak_times*10)), sdlog(mean(peak_times*10),var(peak_times*10)),
+                                meanlog(mean(init_offsets_intensities), var(init_offsets_intensities)), sdlog(mean(init_offsets_intensities*10),var(init_offsets_intensities)),
+                                meanlog(mean(peak_intensities), var(peak_intensities)), sdlog(mean(peak_intensities),var(peak_intensities))))
+  rownames(corr_stats_df) <- c('init_offsets_times_mean', 'init_offsets_times_sd', 
                                'init_offsets_times_skew', 'init_offsets_times_kurt', 
-                               'peak_times_mu', 'peak_times_sd',
+                               'peak_times_mean', 'peak_times_sd',
                                'peak_times_skew', 'peak_times_kurt',
-                               'init_offsets_intensities_mu', 'init_offsets_intensities_sd',
+                               'init_offsets_intensities_mean', 'init_offsets_intensities_sd',
                                'init_offsets_intensities_skew', 'init_offsets_intensities_kurt',
-                               'peak_intensities_mu', 'peak_intensities_sd',
+                               'peak_intensities_mean', 'peak_intensities_sd',
                                'peak_intensities_skew', 'peak_intensities_kurt',
-                               'init_offsets_times_logspace_mu', 'init_offsets_times_logspace_sd',
-                               'peak_times_logspace_mu', 'peak_times_logspace_sd',
-                               'init_offsets_intensities_logspace_mu', 'init_offsets_intensities_logspace_sd',
-                               'peak_intensities_logspace_mu', 'peak_intensities_logspace_sd')
+                               'init_offsets_times_meanlog', 'init_offsets_times_sdlog',
+                               'peak_times_meanlog', 'peak_times_sdlog',
+                               'init_offsets_intensities_meanlog', 'init_offsets_intensities_sdlog',
+                               'peak_intensities_meanlog', 'peak_intensities_sdlog')
   write.table(corr_stats_df, file=file.path(location.results, paste0(filenameout, "_corr_stats.csv")), sep=",", row.names=TRUE, col.names=FALSE)
   
   
   # check normality and log-normality
-  normality_analysis(init_offsets_times, 'offsets at t=0', paste0(filenameout, "_init_offsets_times"), location.results)
+  normality_analysis(init_offsets_times, 'offsets t=0', paste0(filenameout, "_init_offsets_times"), location.results)
   normality_analysis(peak_times, 'peak times', paste0(filenameout, "_peak_times"), location.results)
-  normality_analysis(init_offsets_intensities, 'offsets intens.', paste0(filenameout, "_init_offsets_intensities"), location.results)  
-  normality_analysis(peak_intensities, 'peak intens.', paste0(filenameout, "_peak_intensities"), location.results)
+  normality_analysis(init_offsets_intensities, 'offsets int', paste0(filenameout, "_init_offsets_intensities"), location.results)  
+  normality_analysis(peak_intensities, 'peak int', paste0(filenameout, "_peak_intensities"), location.results)
   
   
   # synchronise the time courses by maximum peak
@@ -311,7 +360,7 @@ sync_tc_fun <- function(df, location.data, filenameout, ylab, location.results) 
 plot_original_tc <- function(df, filenameout, ylab, location.results) {
   names(df)[1] <- "time"
   g <- plot_curves(df) + 
-    labs(title=paste0("n=", ncol(df)-1), x="Time [s]", y=ylab)
+    labs(title=paste0("n=", ncol(df)), x="Time [s]", y=ylab)
   ggsave(file.path(location.results, paste0(filenameout, "_orig.png")), 
          dpi=300,  width=6, height=4)
 }
