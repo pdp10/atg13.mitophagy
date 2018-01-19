@@ -186,12 +186,11 @@ comp_mean_error <- function(df, ylab, filenameout, location.results) {
   colnames(statdf)[1] <- 'a'
   #print(statdf)
   
-  # plot mean+sd
+  # plot mean+sd+ci95
   g <- ggplot(statdf, aes(x=a, y=b)) + 
     geom_errorbar(aes(ymin=b-c, ymax=b+c)) + 
-    geom_line(aes(x=a, y=b), color="black", size=1.0) +
     geom_errorbar(aes(ymin=b-d, ymax=b+d), colour="magenta") +
-    geom_line(aes(x=a, y=b), color="black", size=1.0)
+    geom_line(aes(x=a, y=b), color="black", size=1)
   
   colnames(statdf) <- c("time", "mean", "sd", "ci95")
   write.table(statdf, file=file.path(location.results, paste0(filenameout, "_stats.csv")), sep=",", row.names=FALSE)  
@@ -223,22 +222,22 @@ comp_mean_error_w_linear_model <- function(df, filename, ylab, show.linear.model
   g <- ggplot(statdf, aes(x=Time, y=means)) + 
     # SD
     geom_errorbar(aes(ymin=means-stdevs, ymax=means+stdevs)) + 
-    geom_line(aes(x=Time, y=means), color="black", size=0.5) +
     # CI 95%
     geom_errorbar(aes(ymin=means-ci95, ymax=means+ci95), colour="magenta") +
-    geom_line(aes(x=Time, y=means), color="black", size=0.5) +
+    # mean
+    geom_line(aes(x=Time, y=means), color="black", size=1.0) +
     labs(x="Time [s]", y=ylab
          , title=paste0('')
          #, title=paste0('n=', ncol(df)-1)
     ) +
-    theme_basic(base_size=34)
+    theme_basic(base_size=40)
   
   if(show.linear.model) {
     x0 <- 550 #500
     y0 <- 500 #-0.1
     g <- g +
       stat_smooth(method = "lm", se=TRUE, color="blue", aes(group=1)) + 
-      annotate("text", x=x0, y=y0, label = equation(fit), size=6, parse = TRUE)
+      annotate("text", x=x0, y=y0, label = equation(fit), size=8, parse = TRUE)
     
     # export regression data
     data.regr <- data.frame(regression='meansVStime', slope=coef(fit)[2], intercept=coef(fit)[1], check.names = FALSE)
@@ -409,9 +408,9 @@ spline.data.frame <- function(data, spar) {
 # plot the time course repeats
 plot_tc_repeats <- function(df, ylab) {
   df.melt <- melt(df,id.vars=c("Time"), variable.name = 'repeats')
-  g <- ggplot() + geom_line(data=df.melt,aes(x=Time,y=value,color=repeats), size=0.5) +
+  g <- ggplot() + geom_line(data=df.melt,aes(x=Time,y=value,color=repeats), size=1) +
     labs(x="Time [s]", y=ylab, title=paste0('n=', ncol(df)-1)) +
-    theme_basic(base_size=34)
+    theme_basic(base_size=40)
   return(g)
 }
 
