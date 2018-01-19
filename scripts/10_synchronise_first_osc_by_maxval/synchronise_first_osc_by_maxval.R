@@ -34,9 +34,11 @@ if(length(SCRIPT_PATH) > 0) {
   # we use this when Rscript is used from a different directory
   SCRIPT_PATH <- normalizePath(SCRIPT_PATH)
   source(file.path(SCRIPT_PATH, '../utilities/plots.R'))
+  source(file.path(SCRIPT_PATH, '../utilities/statistics.R'))
 } else {
   # we use this when Rscript is used from this directory
-  source('../utilities/plots_autophagy.R')
+  source('../utilities/plots.R')
+  source('../utilities/statistics.R')
 }
 
 

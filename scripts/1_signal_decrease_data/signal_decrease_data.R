@@ -30,6 +30,7 @@
 library(ggplot2)
 
 source('../utilities/plots.R')
+source('../utilities/statistics.R')
 
 
 

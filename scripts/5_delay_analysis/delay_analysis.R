@@ -30,8 +30,10 @@
 
 library(ggplot2)
 
+
 source('../utilities/plots.R')
-source('../utilities/plots_autophagy.R')
+source('../utilities/statistics.R')
+
 
 
 # return the upper values of the oscillations (the peaks)
@@ -217,24 +219,20 @@ low.high.time.diff.mean <- mean(low.high.time.diff)
 low.high.time.diff.sd <- sd(low.high.time.diff)
 
 
-df.low.high <- data.frame(name=c('mu', 
+df.low.high <- data.frame(name=c('mean', 
                                  'sd',
                                  'skew',
-                                 'kurt',
-                                 'logspace_mu', 
-                                 'logspace_sd'), 
+                                 'kurt (excess)',
+                                 'meanlog', 
+                                 'sdlog'), 
                           value=c(low.high.time.diff.mean, 
                                   low.high.time.diff.sd,
                                   skewness(low.high.time.diff),
                                   kurtosis(low.high.time.diff),
-                                  logspace_mu(low.high.time.diff.mean, var(low.high.time.diff)),
-                                  logspace_sd(low.high.time.diff.mean, var(low.high.time.diff))))
+                                  meanlog(low.high.time.diff.mean, var(low.high.time.diff)),
+                                  sdlog(low.high.time.diff.mean, var(low.high.time.diff))))
 write.table(df.low.high, file=paste0(filename, '__atg13_accum_time_stats', suffix), row.names=FALSE, col.names=TRUE, quote=FALSE, sep=',')
 
-
-# normality analysis 
-normality_analysis(low.high.time.diff, 'delay', filename, file.path('.'))
-  
 
 
 
@@ -244,9 +242,14 @@ g <- ggplot() +
   geom_point(data=data.plot, aes(x=time, y=delay, col=type), size=2.5) +  
   labs(title='Peak delays', x='Time [s]', y='Delay [s]', color='Peak') +
   annotate("text", x=320, y=155, label=paste0("high-low time diff"), parse=FALSE, size=5.5) +  
-  annotate("text", x=185, y=130, label=paste0("n=", length(low.high.time.diff)), parse=FALSE, size=5.5) +  
-  annotate("text", x=250, y=110, label=paste0("mu=", round(df.low.high[df.low.high$name %in% "mu",]$value, digits=3)), parse=FALSE, size=5.5) +
-  annotate("text", x=230, y=90, label=paste0("SD=", round(df.low.high[df.low.high$name %in% "sd",]$value, digits=3)), parse=FALSE, size=5.5) +  
+  annotate("text", x=220, y=130, label=paste0("n=", length(low.high.time.diff)), parse=FALSE, size=5.5) +  
+  annotate("text", x=240, y=108, label=paste0("mean=", round(df.low.high[df.low.high$name %in% "mean",]$value, digits=3)), parse=FALSE, size=5.5) +
+  annotate("text", x=275, y=86, label=paste0("sd=", round(df.low.high[df.low.high$name %in% "sd",]$value, digits=3)), parse=FALSE, size=5.5) +  
   theme_basic(base_size=24)
 ggsave(paste0(filename, '_delay.png'), width=5, height=4, dpi=300)
 write.table(data.plot, file=paste0(filename, '_delay', suffix), row.names=FALSE, quote=FALSE, sep=',')
+
+
+# normality analysis
+normality_analysis(low.high.time.diff, 'delay', filename, file.path('.'))
+

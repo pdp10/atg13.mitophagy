@@ -29,7 +29,7 @@
 
 
 source('../utilities/plots.R')
-
+source('../utilities/statistics.R')
 
 
 ###########
@@ -92,19 +92,31 @@ g <- scatter_plot(df.diam.means$Oscillation, df.diam.means$Mean_Diameter, annot.
 ggsave(file.path(location.results, paste0('mean_mt_diam_vs_peaks_scatterplot','.png')), width=4, height=4, dpi=300)
 
 # Q-Q plot of mean diameters
-q <- qq_plot(df.diam.means$Mean_Diameter)
-ggsave(file.path(location.results, paste0('mean_mt_diam_qqplot','.png')), width=4, height=4, dpi=300)
+q <- qqplot(df.diam.means$Mean_Diameter) + 
+  labs(title='Normal Q-Q') +
+  theme_basic(24)
+ggsave(file.path(location.results, paste0('mean_mt_diam_qqplot','.png')), width=4.5, height=3.5, dpi=300)
 
 # Density plot of mean diameters
-q <- density_plot(df.diam.means$Mean_Diameter) + 
+q <- hist_w_norm(df.diam.means$Mean_Diameter) + 
+  theme(legend.position="none") +    
+  theme_basic(24) + 
   labs(title='', x='MT diameter [um]') + 
-  annotate("text", x=0.85, y=4.5, label = paste0('n=', length(df.diam.means$Mean_Diameter)), size=5.5) + 
-  annotate("text", x=0.85, y=4, label = paste0('mu=', round(mean(df.diam.means$Mean_Diameter), digits=3)), size=5.5) + 
-  annotate("text", x=0.85, y=3.5, label = paste0('SD=', round(sd(df.diam.means$Mean_Diameter), digits=3)), size=5.5) + 
-ggsave(file.path(location.results, paste0('mean_mt_diam_density','.png')), width=4, height=4, dpi=300)
+  annotate("text", x=0.89, y=6.2, label = paste0('n=', length(df.diam.means$Mean_Diameter)), size=5.5) + 
+  annotate("text", x=0.88, y=5.5, label = paste0('mean=', round(mean(df.diam.means$Mean_Diameter), digits=3)), size=5.5) + 
+  annotate("text", x=0.90, y=4.8, label = paste0('sd=', round(sd(df.diam.means$Mean_Diameter), digits=3)), size=5.5) + 
+ggsave(file.path(location.results, paste0('mean_mt_diam_density','.png')), width=4.5, height=3.5, dpi=300)
 
-df.diam.means.stats <- data.frame(stat=c('n', 'mu', 'sd'), 
-                                  value=c(length(df.diam.means$Mean_Diameter), mean(df.diam.means$Mean_Diameter), sd(df.diam.means$Mean_Diameter)))
+df.diam.means.stats <- data.frame(stat=c('n', 
+                                         'mu', 
+                                         'sd', 
+                                         'skew', 
+                                         'kurt (excess)'), 
+                                  value=c(length(df.diam.means$Mean_Diameter), 
+                                          mean(df.diam.means$Mean_Diameter), 
+                                          sd(df.diam.means$Mean_Diameter),
+                                          skewness(df.diam.means$Mean_Diameter),
+                                          kurtosis(df.diam.means$Mean_Diameter)))
 # save table
 write.table(df.diam.means.stats, file=file.path(location.results, paste0('mean_mt_diameter_stats', suffix)), row.names=FALSE, col.names=FALSE, quote=FALSE, sep=',')
 
@@ -116,6 +128,7 @@ write.table(df.diam.means.stats, file=file.path(location.results, paste0('mean_m
 
 # Plot raw diameter measurements vs oscillation number
 g <- box_plot(df.diam$File, df.diam$Diameter) + 
+  theme_basic(24) + 
   labs(title='MT diameter samples', x='Frames', y='MT diameter [um]') +
   #theme(axis.text.x=element_text(angle=90,hjust=1, vjust=0.3)) + 
   theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
@@ -128,12 +141,16 @@ ggsave(file.path(location.results, paste0('mt_diam_density_per_frame__violinplot
 
 
 # diameter densities by frame
-q <- density_plot_wcolour(df.diam$Diameter, df.diam$File) + 
+q <- hist_w_coldensity(df.diam$Diameter, df.diam$File) + 
+  theme_basic(24) + 
   labs(x='MT diameter [um]')
 # split the densities in subplots
 q <- q + facet_wrap(~variable, ncol=4) + 
   ggtitle('Densities of MT diameters per frame') + 
-  theme(legend.position="none")
+  theme(legend.position="none", 
+        strip.background = element_blank(),
+        strip.text.x = element_blank()
+  )
 q <- ggplotly(q)
 ggsave(file.path(location.results, paste0('mt_diam_density_per_frame','.png')), width=9, height=9, dpi=300)
 
@@ -144,7 +161,8 @@ ggsave(file.path(location.results, paste0('mt_diam_density_per_frame','.png')), 
 # ggsave(file.path(location.results, paste0('mt_diam_density_per_osc_num__violinplot','.png')), width=4, height=4, dpi=300)
 # 
 # # diameter densities by oscillation number
-# q <- density_plot_wcolour(df.diam$Diameter, df.diam$Oscillation) + 
+# q <- hist_w_coldensity(df.diam$Diameter, df.diam$Oscillation) + 
+#   theme_basic(24) + 
 #   labs(x='MT diameter [um]')
 # # split the densities in subplots
 # q <- q + facet_wrap(~variable) + 

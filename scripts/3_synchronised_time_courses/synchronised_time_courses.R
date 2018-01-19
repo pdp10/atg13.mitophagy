@@ -28,13 +28,10 @@
 # plot sinchronised original and splined time course data
 
 
-library(ggplot2)
-library(grid)
-library(gridExtra)
 
 
 source('../utilities/plots.R')
-
+source('../utilities/statistics.R')
 
 
 
