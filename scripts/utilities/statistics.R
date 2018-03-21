@@ -27,6 +27,8 @@
 
 # https://uk.mathworks.com/help/stats/lognrnd.html?requestedDomain=true 
 
+library(qqplotr)
+
 meanlog <- function(mu, v) {
   log((mu^2)/sqrt(v+mu^2))
 }
@@ -139,8 +141,8 @@ normalise <- function(x, na.rm = TRUE) {
 qqplot <- function(vec, distribution=stats::qnorm) {
   d <- data.frame(resids=vec)
   g <- ggplot(d, aes(sample=resids)) + 
-    stat_qq(distribution=distribution) + 
-    stat_qq_line(distribution=distribution)
+    stat_qq(distribution=distribution) #+ 
+    #stat_qq_line(distribution=distribution)
 }
 
 

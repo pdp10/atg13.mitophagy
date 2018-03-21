@@ -163,7 +163,7 @@ synchronise_timecourse <- function(dfnt, init_offsets_times, latest_peak_time, y
   # plot synchronised profiles
   g <- plot_curves(sync_df) +
     geom_vline(xintercept=(latest_peak_time*10)-10, size=1.5, color="black", linetype="dashed") +    
-    labs(title=paste0("n=", ncol(sync_df)), x="Time [s]", y=ylab) + 
+    labs(x="Time [s]", y=ylab, title='') +  # title=paste0("n=", ncol(sync_df))) +
     ggsave(file.path(location.results, paste0(filenameout, ".png")), 
            dpi=300,  width=6, height=4)
   
@@ -312,14 +312,13 @@ sync_tc_fun <- function(df, location.data, filenameout, ylab, location.results) 
                                'peak_intensities_meanlog', 'peak_intensities_sdlog')
   write.table(corr_stats_df, file=file.path(location.results, paste0(filenameout, "_corr_stats.csv")), sep=",", row.names=TRUE, col.names=FALSE)
   
-  
   # check normality and log-normality
   normality_analysis(init_offsets_times, 'offsets t=0', paste0(filenameout, "_init_offsets_times"), location.results)
   normality_analysis(peak_times, 'peak times', paste0(filenameout, "_peak_times"), location.results)
   normality_analysis(init_offsets_intensities, 'offsets int', paste0(filenameout, "_init_offsets_intensities"), location.results)  
   normality_analysis(peak_intensities, 'peak int', paste0(filenameout, "_peak_intensities"), location.results)
   
-  
+
   #################
   # Normality tests
   #################
@@ -352,12 +351,11 @@ sync_tc_fun <- function(df, location.data, filenameout, ylab, location.results) 
   write.table(df.stats, file=file.path(location.results, paste0(filenameout, '_peak_intensities_normality_tests.csv')), row.names=FALSE, quote=FALSE, sep=',')
   
   
-  
   # synchronise the time courses by maximum peak
-  sync_df <- synchronise_timecourse(dfnt, init_offsets_times, latest_peak_time, ylab, location.data, filenameout, location.results)
+  sync_df <- synchronise_timecourse(dfnt, init_offsets_times, latest_peak_time, ylab=paste(ylab, '[a.u.]'), location.data, filenameout, location.results)
   
   g <- comp_mean_error(sync_df, ylab, filenameout, location.results) + 
-    labs(x="Time [s]", y=ylab) +     
+    labs(x="Time [s]", y=paste(ylab, '[a.u.]'), title='') +     
     theme_basic(base_size=28)
   ggsave(file.path(location.results, paste0(filenameout, "_ci95.png")), dpi=300,  width=6, height=4)
 }
@@ -367,7 +365,7 @@ sync_tc_fun <- function(df, location.data, filenameout, ylab, location.results) 
 plot_original_tc <- function(df, filenameout, ylab, location.results) {
   names(df)[1] <- "time"
   g <- plot_curves(df) + 
-    labs(title=paste0("n=", ncol(df)), x="Time [s]", y=ylab)
+    labs(x="Time [s]", y=ylab, title="")  #, title=paste0("n=", ncol(df))) 
   ggsave(file.path(location.results, paste0(filenameout, "_orig.png")), 
          dpi=300,  width=6, height=4)
 }
@@ -379,7 +377,7 @@ sync_tc_main <- function(location.data, location.results, csv.file, readout) {
   df <- df[colSums(!is.na(df)) > 0]
   filenameout <- paste0(csv.file)
   # plot original time courses
-  plot_original_tc(df, filenameout, readout, location.results)    
+  plot_original_tc(df, filenameout, ylab=paste(readout, '[a.u.]'), location.results)    
   # synchronise time courses
   sync_tc_fun(df, location.data, filenameout, readout, location.results)
 }
@@ -409,7 +407,7 @@ spline.data.frame <- function(data, spar) {
 plot_tc_repeats <- function(df, ylab) {
   df.melt <- melt(df,id.vars=c("Time"), variable.name = 'repeats')
   g <- ggplot() + geom_line(data=df.melt,aes(x=Time,y=value,color=repeats), size=1) +
-    labs(x="Time [s]", y=ylab, title=paste0('n=', ncol(df)-1)) +
+    labs(x="Time [s]", y=ylab) + #, title=paste0('n=', ncol(df)-1)) +
     theme_basic(base_size=40)
   return(g)
 }
@@ -420,7 +418,8 @@ plot_tc <- function(df, title='title', xlab='Time [s]', ylab='Sign. Int. [a.u.]'
   g <- ggplot(data=df, aes(x=x, y=y)) + 
     geom_line() + geom_point() +
     labs(title=title, x=xlab, y=ylab) + 
-    theme_basic()
+    theme_basic(15)
+    #theme_basic(12)
   return(g)
 }
 
@@ -478,7 +477,7 @@ plot_combined_tc <- function(data, expand.xaxis=TRUE) {
       df <- data.frame(x=data[,1], y=data[,i])      
     }
     p <- plot_tc(df, title=samples[i], xlab='Time [s]', ylab='Intensity Mean [a.u.]') +
-      theme(plot.margin=unit(c(0.2,0.2,0.2,0.2), "in"))
+      theme(plot.margin=unit(c(0.2,0.2,0.2,0.2), "in")) # , axis.text.x=element_text(angle=-45, hjust=0, vjust=0.8))
     PLOTS <- c(PLOTS, list(p))
   }
   return( list(plots=PLOTS) )
@@ -489,7 +488,7 @@ plot_combined_tc <- function(data, expand.xaxis=TRUE) {
 # plot the time courses
 plot_synchronised_tc <- function(df, filename, ylab) {
   # plot time courses
-  plot.tc <- plot_tc_repeats(df, ylab)
+  plot.tc <- plot_tc_repeats(df, ylab=paste(ylab, '[a.u.]'))
   # plot mean, sd, ci95, and save stats for the tc
   plot.tc.err <- comp_mean_error_w_linear_model(df, filename, ylab, show.linear.model=FALSE)
   # plot mean, sd, ci95, and save stats for the tc. Also add linear model information
