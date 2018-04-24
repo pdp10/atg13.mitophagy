@@ -28,13 +28,10 @@
 # plot sinchronised original and splined time course data
 
 
-library(ggplot2)
-library(grid)
-library(gridExtra)
 
 
 source('../utilities/plots.R')
-
+source('../utilities/statistics.R')
 
 
 
@@ -43,18 +40,18 @@ source('../utilities/plots.R')
 #########
 # MY DATA
 #########
-location <- '../data/'
+location <- file.path('..', '..', 'data')
 files <- c('mitophagy_summary_intensity_mean_ch2__synchronised', 'mitophagy_summary_intensity_mean_ch2_spline__synchronised')
 suffix <- '.csv'
 
 # 1st attempt
 remove.cols <- c('3_a', '3_b', '5_a', '6_d', '6_f_2', '16s_a')
-remove.row.head <- 54     # (clear oscillations)
+remove.row.head <- 54     # (clear peakillations)
 remove.row.tail <-  164   # (2 repeats at least) 
 
 # 2nd attempt
 remove.cols <- c('3_a', '3_b', '5_a', '6_d', '6_f_2', '16s_a')
-remove.row.head <- 54     # (clear oscillations)
+remove.row.head <- 54     # (clear peakillations)
 remove.row.tail <- 145    # (3 repeats at least) 
 
 
@@ -65,12 +62,12 @@ remove.row.tail <- 145    # (3 repeats at least)
 
 for(f in files) {
   print(f)
-  df <- read.table( paste0(location, f, suffix), header=TRUE, na.strings="NA", dec=".", sep=",")
+  df <- read.table( file.path(location, paste0(f, suffix)), header=TRUE, na.strings="NA", dec=".", sep=",")
   # rename the columns
   colnames(df) <- c("Time", gsub("MAX_Cell", "", tail(colnames(df), ncol(df)-1)))
 
   # plot the synchronised time courses
-  plot.arrange <- plot_synchronised_tc(df, f, ylab='Intensity Mean [a.u.]')
+  plot.arrange <- plot_synchronised_tc(df, f, ylab='Int. Mean [a.u.]')
   
   
   # data filtering
@@ -78,10 +75,10 @@ for(f in files) {
   df.filt <- data_filtering(df, remove.cols, remove.row.head, remove.row.tail)
 
   # plot the synchronised filtered time courses
-  plot.arrange <- plot_synchronised_tc(df.filt, f, ylab='Normalised Intensity Mean [a.u.]')
+  plot.arrange <- plot_synchronised_tc(df.filt, f, ylab='Norm. Int. Mean [a.u.]')
 
   colnames(df.filt)[2:ncol(df.filt)] <- paste0("MAX_Cell", colnames(df.filt)[2:ncol(df.filt)])
-  write.csv(df.filt, file=paste0(location, f, suffix), quote=FALSE, row.names=FALSE)
+  write.csv(df.filt, file=file.path(location, paste0(f, suffix)), quote=FALSE, row.names=FALSE)
 }
 
 

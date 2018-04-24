@@ -33,8 +33,8 @@ library(ggplot2)
 source('../utilities/plots.R')
 
 
-# return the upper values of the oscillations (the peaks)
-osc.hv <- function(vec, thres=0.5, ini.tp=0) {
+# return the upper values of the peakillations (the peaks)
+peak.hv <- function(vec, thres=0.5, ini.tp=0) {
   vec <- vec[as.numeric(names(vec))>=ini.tp]
   hv <- c()
   prev <- 0
@@ -53,8 +53,8 @@ osc.hv <- function(vec, thres=0.5, ini.tp=0) {
   return(hv)
 }
 
-# return the lower values of the oscillations
-osc.lv <- function(vec, thres=0.5, ini.tp=0) {
+# return the lower values of the peakillations
+peak.lv <- function(vec, thres=0.5, ini.tp=0) {
   vec <- vec[as.numeric(names(vec))>=ini.tp]
   lv <- c()
   prev <- 0
@@ -80,10 +80,10 @@ osc.lv <- function(vec, thres=0.5, ini.tp=0) {
 ##########
 
 suffix <- '.csv'
-location <- '../data/'
+location <- file.path('..', '..', 'data')
 filename <- 'mitophagy_summary_intensity_mean_ch2__synchronised_filtered_regularised'
 
-data <- read.table( paste0(location, filename, suffix), header=TRUE, na.strings="NA", dec=".", sep=",", row.names=1)
+data <- read.table( file.path(location, paste0(filename, suffix)), header=TRUE, na.strings="NA", dec=".", sep=",", row.names=1)
 
 
 
@@ -113,7 +113,7 @@ data <- read.table( paste0(location, filename, suffix), header=TRUE, na.strings=
 ####################
 
 # we manually extracted thresholds for each time course. These are used to determine the highest and lowest values of 
-# the oscillations.
+# the peakillations.
 print(colnames(data))
 #thres.hv <- c(1500,1500,1500,1500,1500,1400,1500,1500,2500,1700,1500,1600,1600,1700,1400,1300,1200)
 #thres.lv <- c(1300,1300,1300,1400,1400,1100,1200,1200,1500,1500,1200,1500,1500,1400,1200,1200,1100)
@@ -124,16 +124,16 @@ thres.lv <- c(1300,1300,1300,1300,1300,1100,1200,1200,1300,1300,1200,1300,1300,1
 # EXTRACT THE UPPER VALUES (the peaks)
 
 # extract the delays from the time courses
-data.plot.hv <- data.frame(time=numeric(0), val=numeric(0))
+data.plot.hv <- data.frame(time=numeric(0), frame=character(0), val=numeric(0))
 for(i in 1:ncol(data)) {
  col.i <- data[,i]
  names(col.i) <- row.names(data)
  ## with min-max scaling
- #hv.i <- osc.hv(col.i, thres=0.50)
+ #hv.i <- peak.hv(col.i, thres=0.50)
  ## without min-max scaling
- hv.i <- osc.hv(col.i, thres=thres.hv[i])
+ hv.i <- peak.hv(col.i, thres=thres.hv[i])
  hv.tc.i <- as.numeric(names(hv.i))
- data.plot.hv <- rbind(data.plot.hv, data.frame(time=hv.tc.i, val=hv.i))
+ data.plot.hv <- rbind(data.plot.hv, data.frame(time=hv.tc.i, frame=colnames(data)[i], val=hv.i))
 }
 data.plot.hv <- cbind(data.plot.hv, pos=rep('top', nrow(data.plot.hv)))
 
@@ -161,9 +161,9 @@ for(i in 1:ncol(data)) {
   col.i <- data[,i]
   names(col.i) <- row.names(data)
   ## with min-max scaling
-  #lv.i <- osc.lv(col.i, thres=0.30)
+  #lv.i <- peak.lv(col.i, thres=0.30)
   ## without min-max scaling
-  lv.i <- osc.lv(col.i, thres=thres.lv[i])
+  lv.i <- peak.lv(col.i, thres=thres.lv[i])
   lv.tc.i <- as.numeric(names(lv.i))
   data.plot.lv <- rbind(data.plot.lv, data.frame(time=lv.tc.i, val=lv.i))
 }

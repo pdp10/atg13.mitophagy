@@ -5,7 +5,7 @@ These are ImageJ-generated files containing information on how the green channel
 This data set combines ch2_mean_intensity from the results in mitophagy_results_from_imaris/.
 
 - Synchronisation
-These mitophagy time courses tend to have an oscillatory behaviour but also include a fair amount of noise. 
+These mitophagy time courses tend to have an peakillatory behaviour but also include a fair amount of noise. 
 (1) In order to attempt a synchronisation, these time courses were splined smoothly (spar=0.4) so that the main time course profile was more identifiable (FILE: mitophagy_summary_intensity_mean_ch2_spline.csv). 
 (2) After computing the splines, the synchronisation was done manually, highlighting the time regions of the peaks (FILE: mitophagy_summary_intensity_mean_ch2_spline__manual_synchronisation.ods). 
 (3) The table of synchronising the splined time courses was then replaced with the original table of time courses (non splined!) (FILE: mitophagy_summary_intensity_mean_ch2__manual_synchronisation.ods). 
@@ -18,3 +18,4 @@ These mitophagy time courses tend to have an oscillatory behaviour but also incl
 
 - the files with "_regularised" contain the data where the green channel does not decrease over time. These data were regularised using the mean regression line in folder 6_synchronised_time_courses.
 
+- selected_movies__17.csv contains the name of the selected frames and the mitochondrial diameter data.

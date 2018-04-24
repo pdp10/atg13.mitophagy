@@ -28,12 +28,9 @@
 # plot raw time course data
 
 
-library(ggplot2)
-library(grid)
-library(gridExtra)
 
 source('../utilities/plots.R')
-
+source('../utilities/statistics.R')
 
 
 
@@ -42,12 +39,12 @@ source('../utilities/plots.R')
 # DATA SET
 ##########
 
-location <- '../data/'
+location <- file.path('..', '..', 'data')
 file <- 'mitophagy_summary_intensity_mean_ch2'
 suffix <- '.csv'
 
 # Load my data
-data <- read.csv(paste0(location, file, suffix))
+data <- read.csv(file.path(location, paste0(file, suffix)))
 
 
 
@@ -74,7 +71,7 @@ spars <- c(0.4)
 
 for(spar in spars) {
   data.spline <- spline.data.frame(data, spar)
-  write.table(data.spline, file=paste0(location, file, '_spline', suffix), sep=",", row.names=FALSE)
+  write.table(data.spline, file=file.path(location, paste0(file, '_spline', suffix)), sep=",", row.names=FALSE)
   
   # Plot all time course splines. x axis is expanded. Plots have different timings
   plots <- plot_combined_tc(data.spline, expand.xaxis=TRUE)

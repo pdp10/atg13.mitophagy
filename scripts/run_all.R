@@ -25,57 +25,66 @@
 
 
 
-#4
-print('4_signal_decrease_data')
-setwd('4_signal_decrease_data')
+#1
+print('1_signal_decrease_data')
+setwd('1_signal_decrease_data')
 source('signal_decrease_data.R')
 rm(list = ls())
 setwd('../')
 
-#5
-print('5_mitophagy_time_courses_plots')
-setwd('5_mitophagy_time_courses_plots')
+#2
+print('2_mitophagy_time_courses_plots')
+setwd('2_mitophagy_time_courses_plots')
 source('mitophagy_time_courses_plots.R')
 rm(list = ls())
 setwd('../')
 
-#6
-print('6_synchronised_time_courses')
-setwd('6_synchronised_time_courses')
+#3
+print('3_synchronised_time_courses')
+setwd('3_synchronised_time_courses')
 source('synchronised_time_courses.R')
 rm(list = ls())
 setwd('../')
 
-#7
-print('7_time_courses_w_adjust_green_ch')
-setwd('7_time_courses_w_adjust_green_ch')
+#4
+print('4_time_courses_w_adjust_green_ch')
+setwd('4_time_courses_w_adjust_green_ch')
 source('time_courses_w_adjust_green_ch.R')
 rm(list = ls())
 setwd('../')
 
-#8
-print('8_delay_analysis')
-setwd('8_delay_analysis')
+#5
+print('5_delay_analysis')
+setwd('5_delay_analysis')
 source('delay_analysis.R')
 rm(list = ls())
 setwd('../')
 
-print('8_upper_lower_bound_analysis')
-setwd('8_upper_lower_bound_analysis')
+#6
+print('6_upper_lower_bound_analysis')
+setwd('6_upper_lower_bound_analysis')
 source('upper_lower_bound_analysis.R')
 rm(list = ls())
 setwd('../')
 
-#9
-print('9_time_courses_data_for_copasi')
-setwd('9_time_courses_data_for_copasi')
+#7
+print('7_time_courses_data_for_copasi')
+setwd('7_time_courses_data_for_copasi')
 source('time_courses_data_for_copasi.R')
 rm(list = ls())
 setwd('../')
 
-#10
-print('10_tc_heatmap')
-setwd('10_tc_heatmap')
+#8
+print('8_tc_heatmap')
+setwd('8_tc_heatmap')
 source('tc_heatmap.R')
 rm(list = ls())
 setwd('../')
+
+#9
+print('9_mt_diameters')
+setwd('9_mt_diameters')
+source('mt_diameters.R')
+rm(list = ls())
+setwd('../')
+

@@ -37,17 +37,17 @@ library(reshape2)
 
 suffix <- '.csv'
 
-location.tc <- '../data/'
+location.tc <- file.path('..', '..', 'data')
 filenames.tc <- c('mitophagy_summary_intensity_mean_ch2__synchronised_filtered_regularised', 
                'mitophagy_summary_intensity_mean_ch2__synchronised_regularised')
 filenames.tc.out <- c('mitophagy_atg13_tc_filtered__copasi', 
                    'mitophagy_atg13_tc__copasi')
 
-location.delay <- '../8_delay_analysis/'
+location.delay <- file.path('..', '5_delay_analysis')
 filename.delay <- 'mitophagy_summary_intensity_mean_ch2__synchronised_filtered_regularised_delay'
 filename.delay.out <- 'mitophagy_atg13_tc_filtered_delay__copasi'
 
-location.copasi <- '../../Models/'
+location.copasi <- file.path('..', '..', '..', 'Models')
 
 
 
@@ -57,15 +57,15 @@ location.copasi <- '../../Models/'
 
 for(i in 1:length(filenames.tc)) {
   # DATA LOADING
-  data <- read.table( paste0(location.tc, filenames.tc[i], suffix), header=TRUE, na.strings="NA", dec=".", sep=",")
+  data <- read.table( file.path(location.tc, paste0(filenames.tc[i], suffix)), header=TRUE, na.strings="NA", dec=".", sep=",")
   
   # MELT
   data.copasi <- melt(data, id.vars=c('Time'), value.name = 'ATG13_obs')
   data.copasi <- subset(data.copasi, select=-c(variable))
   
   # DATA WRITING
-  write.table(data.copasi, file=paste0(location.copasi, filenames.tc.out[i], suffix), sep="\t", na="", dec=".", row.names=FALSE, quote=FALSE)
-  print(paste0('Copasi data set saved in: ', location.copasi, filenames.tc.out[i], suffix))
+  write.table(data.copasi, file=file.path(location.copasi, paste0(filenames.tc.out[i], suffix)), sep="\t", na="", dec=".", row.names=FALSE, quote=FALSE)
+  print(paste0('Copasi data set saved in: ', file.path(location.copasi, paste0(filenames.tc.out[i], suffix))))
   
 }
 
@@ -74,14 +74,14 @@ for(i in 1:length(filenames.tc)) {
 # delay data set
 ################
 
-data.delay <- read.table( paste0(location.delay, filename.delay, suffix), header=TRUE, na.strings="NA", dec=".", sep=",")
+data.delay <- read.table( file.path(location.delay, paste0(filename.delay, suffix)), header=TRUE, na.strings="NA", dec=".", sep=",")
 
 data.copasi.delay <- data.delay[,c(1,2,3)]
-colnames(data.copasi.delay) <- c('Time', 'ATG13_mean_obs', 'osc_delay_obs')
+colnames(data.copasi.delay) <- c('Time', 'ATG13_mean_obs', 'peak_delay_obs')
 
 # set negative values to 0
 #data.copasi.delay <- apply(data.copasi.delay, c(1,2), function(x) {if(x<0) x=0 else x})
 
 # DATA WRITING
-write.table(data.copasi.delay, file=paste0(location.copasi, filename.delay.out, suffix), sep="\t", na="", dec=".", row.names=FALSE, quote=FALSE)
-print(paste0('Copasi data set saved in: ', location.copasi, filename.delay.out, suffix))
+write.table(data.copasi.delay, file=file.path(location.copasi, paste0(filename.delay.out, suffix)), sep="\t", na="", dec=".", row.names=FALSE, quote=FALSE)
+print(paste0('Copasi data set saved in: ', file.path(location.copasi, paste0(filename.delay.out, suffix))))
